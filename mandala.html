@@ -150,13 +150,10 @@
       <div class="who">GPS 수학 <b>풀리지도</b></div>
     </div>
 
-    <!-- 제목 이미지 (업로드 시 자동 교체) -->
+    <\!-- 제목 이미지 -->
     <div class="title-wrap">
-      <div class="title-img" id="titleImg" data-src="uploads/풀리지도-1755c353.png">
-        <div>
-          <div class="big">GPS 수학 풀리지도</div>
-          <div class="small">제목 이미지 영역 · assets/title-mandala.png</div>
-        </div>
+      <div class="title-img has-img">
+        <img src="assets/title-mandala.png" alt="GPS 수학 풀리지도" />
       </div>
     </div>
 
@@ -320,18 +317,6 @@
       eduRow.appendChild(link);
     });
   }
-
-  /* ---------- 제목 이미지 자동 교체 ---------- */
-  (function(){
-    var t = document.getElementById('titleImg');
-    var src = t.getAttribute('data-src');
-    var probe = new Image();
-    probe.onload = function(){
-      t.classList.add('has-img');
-      t.innerHTML = '<img src="'+src+'" alt="GPS 수학 풀리지도" />';
-    };
-    probe.src = src;
-  })();
 
   /* ---------- 화면 띄우기(TV) 모드 ---------- */
   function enterTV(){ document.body.classList.add('tv-mode'); window.scrollTo(0,0); }
