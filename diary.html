@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>수학일기 · GPS 수학</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Jua&family=Gowun+Dodum&family=Gaegu:wght@400;700&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --cream:#FCF6E4; --cream-deep:#F4E9C6; --ink:#3c3730;
+    --g-green:#34b27b; --g-coral:#ef5b54; --g-blue:#3a82d6; --g-pink:#ee6db0; --g-yellow:#f4c43a;
+    --diary:#B98FD9; --diary-deep:#8a5fc0; --diary-soft:#EEE1F8;
+    --gallery:#ee6db0; --gallery-deep:#d24b91;
+  }
+  *{ box-sizing:border-box; }
+  html,body{ margin:0; padding:0; }
+  body{
+    font-family:'Gowun Dodum',sans-serif; color:var(--ink);
+    background:
+      radial-gradient(circle at 12% -5%, #F3EAFB 0%, transparent 42%),
+      radial-gradient(circle at 92% 4%, #FBEFD8 0%, transparent 38%),
+      var(--cream);
+    min-height:100vh; overflow-x:hidden;
+  }
+  .wrap{ max-width:1080px; margin:0 auto; padding:22px 22px 70px; }
+
+  /* topbar */
+  .topbar{ display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:14px; }
+  .back{ display:inline-flex; align-items:center; gap:7px; text-decoration:none; font-family:'Jua',sans-serif;
+    font-size:16px; color:#6b6253; background:#fff; border:3px solid var(--cream-deep); border-radius:999px;
+    padding:9px 18px; box-shadow:0 3px 0 rgba(0,0,0,.06); transition:transform .15s; white-space:nowrap; cursor:pointer; }
+  .back:hover{ transform:translateX(-3px); }
+  .who{ font-family:'Jua',sans-serif; font-size:15px; color:#8a8170; white-space:nowrap; }
+  .who b{ color:var(--diary-deep); }
+
+  .view{ display:none; }
+  .view.active{ display:block; }
+
+  /* ===== 제목 이미지 (배너 자리) ===== */
+  .title-img{ margin:6px auto 26px; max-width:560px; height:132px; border-radius:24px;
+    border:3.5px dashed var(--diary); background:repeating-linear-gradient(45deg,#fff,#fff 14px,#F4ECFB 14px,#F4ECFB 28px);
+    display:grid; place-items:center; text-align:center; color:var(--diary-deep); font-family:'Jua',sans-serif;
+    box-shadow:0 8px 22px -14px rgba(138,95,192,.5); animation:floaty 6s ease-in-out infinite; }
+  @keyframes floaty{ 0%,100%{ transform:translateY(0);} 50%{ transform:translateY(-8px);} }
+  .title-img .big{ font-size:30px; letter-spacing:1px; display:flex; align-items:center; gap:8px; }
+  .title-img .small{ font-size:13px; color:#a892c4; font-family:'Gowun Dodum',sans-serif; margin-top:6px; }
+  .title-img.has-img{ border:none; background:none; box-shadow:none; height:auto; padding:0; }
+  .title-img.has-img img{ width:100%; max-width:480px; height:auto; display:block; }
+  @media (prefers-reduced-motion: reduce){ .title-img{ animation:none; } }
+
+  /* ===== 홈: 두 개의 큰 버튼 ===== */
+  .home-choice{ display:grid; grid-template-columns:1fr 1fr; gap:24px; max-width:760px; margin:0 auto; }
+  .big-btn{ background:#fff; border:5px solid; border-radius:26px; padding:38px 26px; cursor:pointer; text-align:center;
+    transition:transform .16s; box-shadow:0 14px 28px -18px rgba(0,0,0,.4); font-family:inherit; }
+  .big-btn:hover{ transform:translateY(-7px); }
+  .big-btn .ic{ font-size:60px; line-height:1; }
+  .big-btn .btn-img{ display:block; width:100%; height:auto; }
+  /* 이미지만 보이는 버튼 (사각형 박스 제거 + 입체감) */
+  .big-btn.img-btn{ background:none; border:none; box-shadow:none; padding:0; transition:transform .18s cubic-bezier(.34,1.4,.64,1); }
+  .big-btn.img-btn .btn-img{ transition:filter .2s ease, transform .2s ease;
+    filter:drop-shadow(0 3px 3px rgba(70,50,30,.16)) drop-shadow(0 10px 12px rgba(70,50,30,.18)) drop-shadow(0 22px 30px rgba(70,50,30,.22)); }
+  .big-btn.img-btn:hover{ transform:translateY(-9px); }
+  .big-btn.img-btn:hover .btn-img{ transform:scale(1.035);
+    filter:drop-shadow(0 5px 5px rgba(70,50,30,.18)) drop-shadow(0 16px 18px rgba(70,50,30,.2)) drop-shadow(0 34px 46px rgba(70,50,30,.3)); }
+  .big-btn.img-btn:active{ transform:translateY(-2px); }
+  .big-btn.img-btn:active .btn-img{ transform:scale(1.0);
+    filter:drop-shadow(0 2px 3px rgba(70,50,30,.18)) drop-shadow(0 6px 8px rgba(70,50,30,.2)); }
+  .big-btn.img-btn h2{ margin:18px 0 0; }
+  .big-btn h2{ font-family:'Jua',sans-serif; font-size:26px; margin:16px 0 6px; }
+  .big-btn p{ margin:0; color:#8a8170; font-size:15px; line-height:1.5; word-break:keep-all; }
+  .bb-write{ border-color:var(--diary); } .bb-write h2{ color:var(--diary-deep); }
+  .bb-gallery{ border-color:var(--gallery); } .bb-gallery h2{ color:var(--gallery-deep); }
+
+  /* ===== 섹션 헤더 ===== */
+  .sec-head{ text-align:center; margin:2px 0 22px; }
+  .sec-head h1{ font-family:'Jua',sans-serif; font-size:28px; margin:0 0 6px; color:var(--diary-deep); }
+  .sec-head.gal h1{ color:var(--gallery-deep); }
+  .sec-head p{ margin:0; color:#8a8170; font-size:15.5px; word-break:keep-all; }
+
+  /* ===== 달력 (주간 박스) ===== */
+  .cal-nav{ display:flex; align-items:center; justify-content:center; gap:18px; margin:0 auto 20px; }
+  .cal-nav button{ width:44px; height:44px; border-radius:50%; border:3px solid var(--diary); background:#fff;
+    color:var(--diary-deep); font-size:20px; font-family:'Jua',sans-serif; cursor:pointer; transition:transform .12s; }
+  .cal-nav button:hover:not(:disabled){ transform:scale(1.08); }
+  .cal-nav button:disabled{ opacity:.3; cursor:not-allowed; }
+  .cal-nav .ym{ font-family:'Jua',sans-serif; font-size:24px; color:var(--ink); min-width:170px; text-align:center; }
+
+  .cal{ background:#fff; border:4px solid var(--diary); border-radius:24px; padding:18px 18px 20px;
+    box-shadow:0 14px 30px -20px rgba(138,95,192,.55); max-width:880px; margin:0 auto; }
+  .cal-dow{ display:grid; grid-template-columns:46px repeat(7,1fr); gap:6px; margin-bottom:8px; }
+  .cal-dow span{ text-align:center; font-family:'Jua',sans-serif; font-size:14px; color:#a99e83; padding:4px 0; }
+  .cal-dow span.sun{ color:var(--g-coral); } .cal-dow span.sat{ color:var(--g-blue); }
+  .week-row{ display:grid; grid-template-columns:46px 1fr; gap:10px; align-items:stretch; margin-bottom:10px; }
+  .week-no{ display:grid; place-items:center; font-family:'Jua',sans-serif; font-size:13px; color:var(--wk,var(--diary-deep));
+    background:color-mix(in srgb, var(--wk,#B98FD9) 22%, #fff); border-radius:12px; line-height:1.2; text-align:center; }
+  .week-box{ position:relative; border:2.5px solid transparent; border-radius:16px; padding:8px 10px 10px;
+    background:var(--wk-bg,rgba(185,143,217,.10)); cursor:pointer; transition:transform .14s, background .14s, border-color .14s; overflow:hidden; }
+  .week-box:hover{ transform:translateY(-3px); background:color-mix(in srgb, var(--wk,#B98FD9) 20%, #fff); border-color:var(--wk,var(--diary)); }
+  .week-box .days{ display:grid; grid-template-columns:repeat(7,1fr); gap:6px; margin-bottom:8px; }
+  .week-box .day{ text-align:center; font-family:'Jua',sans-serif; font-size:14px; color:var(--wk,#6b6253); padding:5px 0; border-radius:9px; }
+  .week-box .day.out{ color:#cabfae; } .week-box .day.sun{ color:var(--g-coral); } .week-box .day.sat{ color:var(--g-blue); }
+  .week-box .day.today{ background:var(--g-yellow); color:#7a5600; }
+  .theme-chip{ display:flex; align-items:center; gap:9px; background:#fff; border:2px solid color-mix(in srgb, var(--wk,#B98FD9) 28%, #fff);
+    border-radius:12px; padding:7px 12px; }
+  .theme-chip .em{ font-size:22px; line-height:1; flex:none; }
+  .theme-chip .tt{ min-width:0; }
+  .theme-chip .tt b{ font-family:'Jua',sans-serif; font-size:15px; color:var(--wk,var(--diary-deep)); display:block; line-height:1.3;
+    word-break:keep-all; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .theme-chip .tt span{ font-size:12.5px; color:#9a8f76; }
+  .theme-chip .arr{ margin-left:auto; color:var(--wk,var(--diary)); font-size:18px; flex:none; }
+  .week-box.empty{ cursor:default; background:repeating-linear-gradient(45deg,#faf7fe,#faf7fe 10px,#f3edfa 10px,#f3edfa 20px); }
+  .week-box.empty:hover{ transform:none; border-color:transparent; }
+  .week-box.empty .theme-chip{ background:transparent; border:none; color:#bcaed0; font-family:'Jua',sans-serif; justify-content:center; }
+
+  /* ===== 주제 상세 ===== */
+  .theme-grid{ display:grid; grid-template-columns:1.05fr .95fr; gap:26px; align-items:start; max-width:920px; margin:0 auto; }
+  .theme-hero{ border-radius:24px; overflow:hidden; aspect-ratio:4/3; display:grid; place-items:center;
+    border:4px solid #fff; outline:3px solid var(--cream-deep); box-shadow:0 16px 32px -18px rgba(0,0,0,.4); position:relative; }
+  .theme-hero .big-em{ font-size:120px; filter:drop-shadow(0 8px 12px rgba(0,0,0,.18)); }
+  .theme-hero .area-badge{ position:absolute; top:14px; left:14px; font-family:'Jua',sans-serif; font-size:14px; white-space:nowrap;
+    background:rgba(255,255,255,.92); color:var(--diary-deep); padding:6px 14px; border-radius:999px; }
+  .theme-side{ display:flex; flex-direction:column; gap:14px; }
+  .theme-week{ font-family:'Jua',sans-serif; font-size:15px; color:var(--gallery-deep); }
+  .theme-title{ font-family:'Jua',sans-serif; font-size:34px; margin:0; color:var(--diary-deep); line-height:1.2; word-break:keep-all; }
+  .theme-desc{ font-size:16px; color:#6b6253; line-height:1.7; word-break:keep-all; margin:0; }
+  .theme-card{ background:#fff; border:3px solid var(--cream-deep); border-radius:18px; padding:20px; }
+  .theme-card .label{ font-family:'Jua',sans-serif; font-size:14px; color:#9a8f76; margin-bottom:8px; }
+  .theme-card .guide{ font-size:14.5px; color:#6b6253; line-height:1.6; word-break:keep-all; margin:0 0 16px; }
+  .write-btn{ width:100%; font-family:'Jua',sans-serif; font-size:19px; color:#fff;
+    background:linear-gradient(120deg,#B98FD9,#8a5fc0); border:none; border-radius:16px; padding:15px;
+    cursor:pointer; box-shadow:0 6px 0 #6f49a0; transition:transform .12s; display:flex; align-items:center; justify-content:center; gap:9px; }
+  .write-btn:hover{ transform:translateY(-2px); }
+
+  /* ===== 일기 쓰기 템플릿 ===== */
+  .tpl{ max-width:680px; margin:0 auto; background:#fff; border-radius:22px; overflow:hidden;
+    border:4px solid var(--diary); box-shadow:0 18px 36px -22px rgba(138,95,192,.6); }
+  .tpl-top{ background:var(--diary-soft); padding:16px 22px; display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
+  .tpl-top .gps{ font-family:'Jua',sans-serif; font-size:22px; letter-spacing:.5px; display:inline-flex; gap:1px; }
+  .tpl-top .gps .g{ color:var(--g-coral); } .tpl-top .gps .p{ color:var(--g-yellow); } .tpl-top .gps .s{ color:var(--g-green); }
+  .tpl-top .ttl{ font-family:'Jua',sans-serif; font-size:21px; color:var(--diary-deep); }
+  .tpl-meta{ display:grid; grid-template-columns:repeat(4,1fr); gap:1px; background:var(--cream-deep); border-bottom:2px solid var(--cream-deep); }
+  .tpl-meta .mcell{ background:#fff; padding:10px 12px; }
+  .tpl-meta label{ font-family:'Jua',sans-serif; font-size:12.5px; color:var(--diary-deep); display:block; margin-bottom:4px; }
+  .tpl-meta input{ width:100%; border:none; font-family:'Gowun Dodum',sans-serif; font-size:14.5px; color:var(--ink); background:transparent; }
+  .tpl-meta input:focus{ outline:none; }
+  .tpl-body{ padding:18px 22px 22px; }
+  .tpl-titlefield{ margin-bottom:16px; }
+  .tpl-titlefield label{ font-family:'Jua',sans-serif; font-size:16px; color:#5a5140; display:block; margin-bottom:6px; }
+  .tpl-titlefield input{ width:100%; font-family:'Jua',sans-serif; font-size:20px; padding:11px 14px;
+    border:2.5px solid var(--cream-deep); border-radius:14px; background:#fffdf6; color:var(--ink); }
+  .tpl-titlefield input:focus{ outline:none; border-color:var(--diary); }
+  .num-box{ display:grid; grid-template-columns:40px 1fr; gap:12px; margin-bottom:14px; align-items:start; }
+  .num-box .n{ width:40px; height:40px; border-radius:12px; background:var(--diary); color:#fff;
+    font-family:'Jua',sans-serif; font-size:20px; display:grid; place-items:center; }
+  .num-box .qa{ }
+  .num-box .qlabel{ font-family:'Jua',sans-serif; font-size:15px; color:var(--diary-deep); margin:2px 0 6px; word-break:keep-all; }
+  .num-box textarea{ width:100%; font-family:'Gowun Dodum',sans-serif; font-size:15.5px; line-height:1.6; padding:12px 14px;
+    border:2.5px solid var(--cream-deep); border-radius:14px; background:#fffdf6; color:var(--ink); resize:vertical; min-height:80px; }
+  .num-box textarea:focus{ outline:none; border-color:var(--diary); }
+
+  .img-attach{ margin:6px 0 18px; }
+  .img-attach .label{ font-family:'Jua',sans-serif; font-size:15px; color:#5a5140; margin-bottom:8px; }
+  .img-drop{ aspect-ratio:16/9; border-radius:16px; border:2.5px dashed var(--diary); background:#FAF6FE;
+    display:grid; place-items:center; cursor:pointer; overflow:hidden; text-align:center; }
+  .img-drop .ph{ font-family:'Jua',sans-serif; color:#b89cd6; font-size:16px; line-height:1.6; }
+  .img-drop img{ width:100%; height:100%; object-fit:cover; }
+  .img-hint{ font-size:13px; color:#a99e83; margin:8px 2px 0; line-height:1.5; word-break:keep-all; }
+
+  .post-btn{ width:100%; font-family:'Jua',sans-serif; font-size:19px; color:#fff;
+    background:linear-gradient(120deg,#ee6db0,#d24b91); border:none; border-radius:16px; padding:15px; margin-top:4px;
+    cursor:pointer; box-shadow:0 6px 0 #b13b79; transition:transform .12s; }
+  .post-btn:hover:not(:disabled){ transform:translateY(-2px); }
+  .post-btn:disabled{ background:#d8cfbb; box-shadow:0 6px 0 #bdb39b; cursor:not-allowed; }
+  .file-hidden{ display:none; }
+
+  /* 작성 완료 안내 */
+  .write-done{ display:none; max-width:680px; margin:18px auto 0; text-align:center;
+    background:var(--diary-soft); border:2.5px dashed var(--diary); border-radius:18px; padding:22px; }
+  .write-done.show{ display:block; animation:pop .3s ease; }
+  @keyframes pop{ from{ transform:scale(.96); opacity:0; } to{ transform:scale(1); opacity:1; } }
+  .write-done .msg{ font-family:'Jua',sans-serif; font-size:20px; color:var(--diary-deep); margin:0 0 14px; }
+  .write-done .go-gallery{ font-family:'Jua',sans-serif; font-size:17px; color:#fff; background:var(--gallery-deep);
+    border:none; border-radius:14px; padding:13px 24px; cursor:pointer; box-shadow:0 4px 0 #99316d; }
+
+  /* ===== 갤러리 ===== */
+  .gal-top{ display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:20px; flex-wrap:wrap; }
+  .share-cta{ font-family:'Jua',sans-serif; font-size:16px; color:#fff;
+    background:linear-gradient(120deg,#ee6db0,#d24b91); border:none; border-radius:14px; padding:11px 20px;
+    cursor:pointer; box-shadow:0 5px 0 #b13b79; transition:transform .12s; white-space:nowrap; }
+  .share-cta:hover{ transform:translateY(-2px); }
+  .diary-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:22px; }
+  .dcard{ background:#fff; border:1.5px solid #ededed; border-radius:16px; cursor:pointer; overflow:hidden;
+    box-shadow:0 8px 20px -14px rgba(0,0,0,.32); transition:transform .15s, box-shadow .15s; display:flex; flex-direction:column; text-align:left; }
+  .dcard:hover{ transform:translateY(-5px); box-shadow:0 16px 30px -14px rgba(0,0,0,.4); }
+  .dcard-thumb{ aspect-ratio:4/3; overflow:hidden; background:var(--diary-soft); display:grid; place-items:center; position:relative; }
+  .dcard-thumb img{ width:100%; height:100%; object-fit:cover; display:block; }
+  .dcard-thumb .big-em{ font-size:64px; filter:drop-shadow(0 5px 7px rgba(0,0,0,.15)); }
+  .dcard-thumb .area-badge{ position:absolute; top:10px; left:10px; font-family:'Jua',sans-serif; font-size:12px;
+    background:rgba(255,255,255,.92); color:var(--diary-deep); padding:4px 11px; border-radius:999px; }
+  .dcard-body{ padding:13px 15px 15px; }
+  .dcard-body h3{ font-family:'Jua',sans-serif; font-size:17px; margin:0 0 4px; color:var(--ink); line-height:1.3; word-break:keep-all; }
+  .dcard-meta{ display:flex; align-items:center; gap:10px; font-size:13px; color:#9a8f76; }
+  .dcard-meta .like{ display:inline-flex; align-items:center; gap:4px; }
+  .dcard-meta .like svg{ width:15px; height:15px; }
+  .empty-gal{ grid-column:1/-1; text-align:center; color:#a99e83; font-family:'Jua',sans-serif; font-size:17px;
+    background:#fff; border:2.5px dashed var(--cream-deep); border-radius:18px; padding:44px 20px; }
+
+  /* ===== 일기 상세보기 ===== */
+  .detail-wrap{ max-width:720px; margin:0 auto; }
+  .detail-paper{ background:#fff; border:4px solid var(--diary); border-radius:22px; overflow:hidden;
+    box-shadow:0 18px 36px -22px rgba(138,95,192,.55); margin-bottom:20px; }
+  .dp-top{ background:var(--diary-soft); padding:18px 24px; }
+  .dp-top .area-badge{ display:inline-block; white-space:nowrap; font-family:'Jua',sans-serif; font-size:13px; background:#fff;
+    color:var(--diary-deep); padding:4px 12px; border-radius:999px; margin-bottom:8px; }
+  .dp-top h2{ font-family:'Jua',sans-serif; font-size:28px; margin:0; color:var(--diary-deep); line-height:1.25; word-break:keep-all; }
+  .dp-top .by{ font-size:13.5px; color:#9a8f76; margin-top:6px; }
+  .dp-img{ width:100%; max-height:420px; object-fit:cover; display:block; background:#faf6fe; }
+  .dp-img.em{ aspect-ratio:16/9; display:grid; place-items:center; font-size:96px; }
+  .dp-meta-row{ display:flex; flex-wrap:wrap; gap:8px; padding:16px 24px 0; }
+  .dp-meta-row .pill{ font-family:'Jua',sans-serif; font-size:13px; background:var(--cream); border:2px solid var(--cream-deep);
+    color:#7a7160; padding:5px 12px; border-radius:999px; }
+  .dp-body{ padding:18px 24px 24px; }
+  .dp-num{ display:grid; grid-template-columns:34px 1fr; gap:12px; margin-bottom:16px; align-items:start; }
+  .dp-num .n{ width:34px; height:34px; border-radius:10px; background:var(--diary); color:#fff;
+    font-family:'Jua',sans-serif; font-size:17px; display:grid; place-items:center; }
+  .dp-num .qlabel{ font-family:'Jua',sans-serif; font-size:14.5px; color:var(--diary-deep); margin:0 0 4px; }
+  .dp-num p{ margin:0; font-size:16px; line-height:1.75; color:#3a3530; word-break:keep-all; white-space:pre-wrap; }
+
+  /* 좋아요 바 */
+  .dp-actions{ display:flex; align-items:center; gap:8px; padding:0 24px 18px; }
+  .like-btn{ display:inline-flex; align-items:center; gap:8px; font-family:'Jua',sans-serif; font-size:16px;
+    color:var(--gallery-deep); background:#fff; border:2.5px solid #f3cfe4; border-radius:999px; padding:9px 18px; cursor:pointer; transition:transform .12s; }
+  .like-btn:hover{ transform:translateY(-2px); }
+  .like-btn svg{ width:20px; height:20px; }
+  .like-btn.on{ background:#fdeef5; border-color:var(--gallery); }
+
+  /* 댓글 */
+  .comments{ max-width:720px; margin:0 auto; background:#fff; border:3px solid var(--cream-deep); border-radius:20px; padding:20px 22px 22px; }
+  .comments h3{ font-family:'Jua',sans-serif; font-size:18px; color:var(--diary-deep); margin:0 0 14px; display:flex; align-items:center; gap:8px; }
+  .comments h3 .cnt{ font-size:14px; color:#9a8f76; }
+  .c-list{ display:flex; flex-direction:column; gap:12px; margin-bottom:16px; }
+  .c-item{ display:flex; gap:10px; align-items:flex-start; }
+  .c-ava{ width:34px; height:34px; flex:none; border-radius:50%; display:grid; place-items:center; font-size:17px;
+    background:var(--diary-soft); }
+  .c-bub{ flex:1; min-width:0; background:var(--cream); border:1.5px solid var(--cream-deep); border-radius:14px; padding:9px 13px; }
+  .c-bub .c-name{ font-family:'Jua',sans-serif; font-size:13.5px; color:var(--diary-deep); }
+  .c-bub .c-name .adm{ font-size:11px; color:#fff; background:var(--g-coral); border-radius:6px; padding:1px 6px; margin-left:6px; }
+  .c-bub .c-text{ font-size:14.5px; color:#3a3530; line-height:1.55; margin-top:2px; word-break:keep-all; white-space:pre-wrap; }
+  .c-bub .c-edit{ width:100%; font-family:'Gowun Dodum',sans-serif; font-size:14.5px; padding:8px 10px; border:2px solid var(--diary);
+    border-radius:10px; resize:vertical; min-height:46px; margin-top:4px; }
+  .c-tools{ display:flex; gap:8px; margin-top:7px; }
+  .c-tools button{ font-family:'Gowun Dodum',sans-serif; font-size:12.5px; border-radius:9px; padding:3px 11px; cursor:pointer; border:2px solid; background:#fff; }
+  .c-tools .edit{ color:var(--g-blue); border-color:#cfe0f5; }
+  .c-tools .del{ color:var(--g-coral); border-color:#f6cfcc; }
+  .c-tools .save{ color:#fff; background:var(--g-green); border-color:var(--g-green); }
+  .c-tools .cancel{ color:#9a8f76; border-color:var(--cream-deep); }
+  .c-empty{ text-align:center; color:#b2a78c; font-size:14.5px; padding:6px 0 12px; }
+  .c-form{ display:flex; gap:10px; align-items:flex-start; border-top:2px dashed var(--cream-deep); padding-top:16px; }
+  .c-form textarea{ flex:1; font-family:'Gowun Dodum',sans-serif; font-size:14.5px; padding:11px 13px; border:2.5px solid var(--cream-deep);
+    border-radius:14px; resize:vertical; min-height:46px; background:#fffdf6; }
+  .c-form textarea:focus{ outline:none; border-color:var(--diary); }
+  .c-form button{ font-family:'Jua',sans-serif; font-size:15px; color:#fff; background:var(--diary-deep); border:none;
+    border-radius:14px; padding:11px 18px; cursor:pointer; box-shadow:0 4px 0 #5d3d88; white-space:nowrap; align-self:stretch; }
+  .c-form button:disabled{ background:#cfc4dd; box-shadow:0 4px 0 #b6a8c9; cursor:not-allowed; }
+
+  /* toast */
+  .toast{ position:fixed; left:50%; bottom:34px; transform:translate(-50%,140%);
+    background:#fff; border:4px solid var(--cream-deep); border-radius:18px; padding:14px 22px;
+    font-family:'Jua',sans-serif; font-size:18px; color:#5a5140; box-shadow:0 12px 28px -10px rgba(0,0,0,.4);
+    z-index:50; max-width:88vw; transition:transform .35s cubic-bezier(.34,1.56,.64,1); display:flex; align-items:center; gap:10px; }
+  .toast.show{ transform:translate(-50%,0); }
+  .toast .em{ font-size:22px; }
+
+  @media (max-width:860px){
+    .theme-grid{ grid-template-columns:1fr; }
+    .diary-grid{ grid-template-columns:repeat(2,1fr); }
+    .tpl-meta{ grid-template-columns:repeat(2,1fr); }
+  }
+  @media (max-width:560px){
+    .home-choice{ grid-template-columns:1fr; }
+    .diary-grid{ grid-template-columns:1fr; }
+    .cal-dow{ grid-template-columns:30px repeat(7,1fr); }
+    .week-row{ grid-template-columns:30px 1fr; }
+    .week-box .days{ display:none; }
+  }
+</style>
+</head>
+<body>
+  <div class="wrap">
+
+    <!-- ===== 홈 ===== -->
+    <section id="viewHome" class="view active" data-screen-label="수학일기 홈">
+      <div class="topbar">
+        <a class="back" href="index.html">← 메인으로</a>
+        <span class="who" id="whoD"></span>
+      </div>
+      <div class="title-img has-img" id="titlePh">
+        <img src="assets/diary-title.png" alt="수학일기" />
+      </div>
+      <div class="home-choice">
+        <button class="big-btn bb-write img-btn" id="toCalendar">
+          <img class="btn-img" src="assets/btn-diary-write.png" alt="수학일기 쓰기" />
+          <h2>수학일기 쓰기</h2>
+        </button>
+        <button class="big-btn bb-gallery img-btn" id="toGalleryHome">
+          <img class="btn-img" src="assets/btn-diary-gallery.png" alt="수학일기 갤러리" />
+          <h2>수학일기 갤러리</h2>
+        </button>
+      </div>
+    </section>
+
+    <!-- ===== 달력 (주제 선택) ===== -->
+    <section id="viewCalendar" class="view" data-screen-label="주제 달력">
+      <div class="topbar">
+        <button class="back" id="calBack">← 돌아가기</button>
+        <span class="who"></span>
+      </div>
+      <div class="sec-head">
+        <h1>오늘 쓸 수학일기를 골라보세요!</h1>
+        <p>달력에서 이번 주 주제를 누르면, 그 주의 수학일기를 쓸 수 있어요.</p>
+      </div>
+      <div class="cal-nav">
+        <button id="calPrev" aria-label="이전 달">◀</button>
+        <div class="ym" id="calYM">2026년 6월</div>
+        <button id="calNext" aria-label="다음 달">▶</button>
+      </div>
+      <div class="cal">
+        <div class="cal-dow">
+          <span></span><span class="sun">일</span><span>월</span><span>화</span><span>수</span><span>목</span><span>금</span><span class="sat">토</span>
+        </div>
+        <div id="weekRows"></div>
+      </div>
+    </section>
+
+    <!-- ===== 주제 상세 ===== -->
+    <section id="viewTheme" class="view" data-screen-label="주제 상세">
+      <div class="topbar">
+        <button class="back" id="themeBack">← 달력으로</button>
+        <span class="who"></span>
+      </div>
+      <div class="theme-grid">
+        <div class="theme-hero" id="themeHero">
+          <span class="area-badge" id="themeArea">영역</span>
+          <span class="big-em" id="themeEm">📔</span>
+        </div>
+        <div class="theme-side">
+          <div class="theme-week" id="themeWeek">6월 2주차</div>
+          <h2 class="theme-title" id="themeTitle">주제 제목</h2>
+          <p class="theme-desc" id="themeDesc"></p>
+          <div class="theme-card">
+            <div class="label">✏️ 이렇게 써 보세요</div>
+            <p class="guide" id="themeGuide"></p>
+            <button class="write-btn" id="startWrite">📔 이 주제로 일기 쓰기</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== 일기 쓰기 (템플릿) ===== -->
+    <section id="viewWrite" class="view" data-screen-label="일기 쓰기">
+      <div class="topbar">
+        <button class="back" id="writeBack">← 돌아가기</button>
+        <span class="who"></span>
+      </div>
+      <div class="sec-head">
+        <h1 id="writeHead">수학일기 쓰기</h1>
+        <p id="writeSub">템플릿에 맞춰 오늘의 수학 이야기를 적어 보세요.</p>
+      </div>
+
+      <div class="tpl">
+        <div class="tpl-top">
+          <span class="gps"><span class="g">G</span><span class="p">P</span><span class="s">S</span></span>
+          <span class="ttl">일상 속 수학, 일기 365</span>
+        </div>
+        <div class="tpl-meta">
+          <div class="mcell"><label>학습 내용</label><input type="text" id="wLearn" placeholder="예: 등호" /></div>
+          <div class="mcell"><label>단원</label><input type="text" id="wUnit" placeholder="예: 대응 관계" /></div>
+          <div class="mcell"><label>교과서</label><input type="text" id="wBook" placeholder="예: 5-1" /></div>
+          <div class="mcell"><label>이름</label><input type="text" id="wName" placeholder="이름" /></div>
+        </div>
+        <div class="tpl-body">
+          <div class="tpl-titlefield">
+            <label>일기 제목</label>
+            <input type="text" id="wTitle" placeholder="예: 한글에 도형이 있다고?" />
+          </div>
+
+          <div class="num-box">
+            <div class="n">1</div>
+            <div class="qa">
+              <div class="qlabel" id="q1label">오늘 발견한 수학은 무엇인가요?</div>
+              <textarea id="wA1" placeholder="생활 속에서 찾은 수학 개념을 적어 보세요."></textarea>
+            </div>
+          </div>
+          <div class="num-box">
+            <div class="n">2</div>
+            <div class="qa">
+              <div class="qlabel" id="q2label">그래서 어떤 생각이 들었나요?</div>
+              <textarea id="wA2" placeholder="그 수학으로 알게 된 점이나 느낀 점을 적어 보세요."></textarea>
+            </div>
+          </div>
+
+          <div class="img-attach">
+            <div class="label">📷 그림·사진 넣기 (선택)</div>
+            <input type="file" id="wFile" class="file-hidden" accept="image/*" />
+            <div class="img-drop" id="wDrop"><span class="ph">📷<br/>그림이나 사진을 넣어 보세요<br/><small>(캔바에서 만든 일기 이미지도 좋아요)</small></span></div>
+            <p class="img-hint">캔바 등에서 만든 수학일기 결과물 이미지를 그대로 올려도 돼요.</p>
+          </div>
+
+          <button class="post-btn" id="postBtn" disabled>📨 일기 공유하기</button>
+        </div>
+      </div>
+
+      <div class="write-done" id="writeDone">
+        <p class="msg">🎉 일기를 친구들과 공유하였습니다!</p>
+        <button class="go-gallery" id="doneToGallery">다른 친구들의 일기도 보러 갈까요? →</button>
+      </div>
+    </section>
+
+    <!-- ===== 갤러리 ===== -->
+    <section id="viewGallery" class="view" data-screen-label="일기 갤러리">
+      <div class="topbar">
+        <button class="back" id="galleryBack">← 돌아가기</button>
+        <span class="who"></span>
+      </div>
+      <div class="sec-head gal">
+        <h1>🖼️ 수학일기 갤러리</h1>
+        <p>친구들이 쓴 일상 속 수학 이야기를 구경하고, 좋아요와 댓글을 남겨요.</p>
+      </div>
+      <div class="gal-top">
+        <span style="font-family:'Jua',sans-serif;font-size:16px;color:#9a8f76;" id="galCount"></span>
+        <button class="share-cta" id="shareCta">＋ 나의 수학일기 공유하기</button>
+      </div>
+      <div class="diary-grid" id="diaryGrid"></div>
+    </section>
+
+    <!-- ===== 일기 상세보기 ===== -->
+    <section id="viewDetail" class="view" data-screen-label="일기 상세">
+      <div class="topbar">
+        <button class="back" id="detailBack">← 갤러리로</button>
+        <span class="who"></span>
+      </div>
+      <div class="detail-wrap">
+        <div class="detail-paper">
+          <div class="dp-top">
+            <span class="area-badge" id="dpArea">영역</span>
+            <h2 id="dpTitle">일기 제목</h2>
+            <div class="by" id="dpBy"></div>
+          </div>
+          <div id="dpImgSlot"></div>
+          <div class="dp-meta-row" id="dpMetaRow"></div>
+          <div class="dp-body" id="dpBody"></div>
+          <div class="dp-actions">
+            <button class="like-btn" id="likeBtn">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 1 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8z"/></svg>
+              <span id="likeTxt">좋아요 0</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="comments">
+          <h3>💬 댓글 <span class="cnt" id="cCount">0</span></h3>
+          <div class="c-list" id="cList"></div>
+          <div class="c-form">
+            <textarea id="cInput" placeholder="따뜻한 댓글을 남겨 주세요 :)"></textarea>
+            <button id="cSubmit" disabled>등록</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </div>
+
+  <div class="toast" id="toast" role="status"><span class="em">🎉</span><span id="toastTxt"></span></div>
+
+<script src="diary.js"></script>
+</body>
+</html>

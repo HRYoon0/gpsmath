@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>풀리지도 · GPS 수학</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Jua&family=Gowun+Dodum&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --cream:#FCF6E4; --cream-deep:#F4E9C6; --ink:#3c3730;
+    --g-green:#34b27b; --g-coral:#ef5b54; --g-blue:#3a82d6; --g-pink:#ee6db0; --g-yellow:#f4c43a;
+    --map:#5EC79A; --map-deep:#2f9d72; --map-soft:#DDF4E8;
+    --area:#5EC79A; --area-deep:#3aa178;
+    --area-on:#e23ea0; --area-on-deep:#b51f7c;
+    --edu:#F6A56A; --edu-deep:#d97b3e;
+  }
+  *{ box-sizing:border-box; }
+  html,body{ margin:0; padding:0; }
+  body{
+    font-family:'Gowun Dodum',sans-serif; color:var(--ink);
+    background:
+      radial-gradient(circle at 12% -5%, #E6F7EE 0%, transparent 42%),
+      radial-gradient(circle at 92% 4%, #FBEFD8 0%, transparent 38%),
+      var(--cream);
+    min-height:100vh; overflow-x:hidden;
+  }
+  .wrap{ max-width:1160px; margin:0 auto; padding:22px 22px 70px; }
+
+  /* topbar */
+  .topbar{ display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:10px; }
+  .back{ display:inline-flex; align-items:center; gap:7px; text-decoration:none; font-family:'Jua',sans-serif;
+    font-size:16px; color:#6b6253; background:#fff; border:3px solid var(--cream-deep); border-radius:999px;
+    padding:9px 18px; box-shadow:0 3px 0 rgba(0,0,0,.06); transition:transform .15s; white-space:nowrap; cursor:pointer; }
+  .back:hover{ transform:translateX(-3px); }
+  .who{ font-family:'Jua',sans-serif; font-size:15px; color:#8a8170; white-space:nowrap; }
+  .who b{ color:var(--map-deep); }
+
+  /* ===== 제목 이미지 ===== */
+  .title-wrap{ text-align:center; margin:4px auto 18px; }
+  .title-img{ display:inline-grid; place-items:center; min-width:300px; max-width:540px; height:104px; padding:0 30px;
+    border-radius:22px; border:3.5px dashed var(--map); color:var(--map-deep); font-family:'Jua',sans-serif;
+    background:repeating-linear-gradient(45deg,#fff,#fff 14px,#EAF7F0 14px,#EAF7F0 28px);
+    box-shadow:0 8px 22px -14px rgba(47,157,114,.5); }
+  .title-img .big{ font-size:30px; letter-spacing:1px; }
+  .title-img .small{ font-size:12.5px; color:#9bc7b2; font-family:'Gowun Dodum',sans-serif; margin-top:4px; }
+  .title-img.has-img{ border:none; background:none; box-shadow:none; height:auto; padding:0; min-width:0;
+    animation:floaty 6s ease-in-out infinite; }
+  @keyframes floaty{ 0%,100%{ transform:translateY(0);} 50%{ transform:translateY(-8px);} }
+  .title-img.has-img img{ display:block; width:100%; max-width:520px; height:auto; }
+
+  /* ===== 메인 레이아웃 ===== */
+  .layout{ display:grid; grid-template-columns:minmax(0,1fr) 196px; gap:26px; align-items:start; }
+
+  /* ----- 만다라트 보드 ----- */
+  .board-wrap{ position:relative; }
+  .board{ position:relative; width:100%; border-radius:20px; overflow:hidden;
+    background:var(--map-soft); border:4px solid #fff; outline:3px solid var(--cream-deep);
+    box-shadow:0 16px 34px -18px rgba(47,90,60,.5); }
+  .board__img{ display:block; width:100%; height:auto; }
+  /* fallback placeholder (이미지 미업로드 영역) */
+  .board__ph{ display:none; aspect-ratio:10/7; width:100%; place-items:center; text-align:center;
+    background:repeating-linear-gradient(45deg,#fff,#fff 16px,#EAF7F0 16px,#EAF7F0 32px); color:var(--map-deep);
+    font-family:'Jua',sans-serif; }
+  .board.no-img .board__img{ display:none; }
+  .board.no-img .board__ph{ display:grid; }
+  .board__ph .ph-name{ font-size:30px; }
+  .board__ph .ph-sub{ font-family:'Gowun Dodum',sans-serif; font-size:14px; color:#7fb8a0; margin-top:8px; }
+
+  /* 9칸 입력 오버레이 */
+  .cells{ position:absolute; inset:0; display:grid; grid-template-columns:repeat(3,1fr); grid-template-rows:repeat(3,1fr); }
+  .cell{ position:relative; }
+  .cell textarea{
+    position:absolute; inset:6% 7% 6% 7%; width:auto; height:auto;
+    border:none; outline:none; resize:none; background:transparent;
+    font-family:'Gowun Dodum',sans-serif; font-size:clamp(11px,1.45vw,17px); line-height:1.4; color:#2c2a26;
+    text-align:center; padding-top:30%; overflow:auto;
+  }
+  .cell textarea::placeholder{ color:transparent; }
+  .cell textarea:focus{ background:transparent; border-radius:0; padding-top:30%; }
+  .cell.is-center{ pointer-events:none; }
+
+  /* ----- 우측 영역 버튼 ----- */
+  .side{ display:flex; flex-direction:column; gap:12px; }
+  .area-btn{ font-family:'Jua',sans-serif; font-size:18px; color:#fff; cursor:pointer; text-align:center;
+    background:var(--area); border:none; border-radius:16px; padding:16px 10px; line-height:1.2; word-break:keep-all;
+    box-shadow:0 5px 0 var(--area-deep), 0 10px 16px -8px rgba(47,120,90,.5);
+    transition:transform .14s, box-shadow .14s, background .15s; }
+  .area-btn:hover{ transform:translateY(-2px); }
+  .area-btn:active{ transform:translateY(3px); box-shadow:0 2px 0 var(--area-deep); }
+  .area-btn.on{ background:var(--area-on); box-shadow:0 5px 0 var(--area-on-deep), 0 10px 18px -7px rgba(180,31,124,.55); }
+
+  /* ----- 하단 에듀테크 바 ----- */
+  .edutech{ margin-top:26px; }
+  .edu-head{ font-family:'Jua',sans-serif; font-size:16px; color:#8a8170; margin:0 0 12px; display:flex; align-items:center; gap:8px; }
+  .edu-head .dot{ color:var(--map); }
+  .edu-head b{ color:var(--map-deep); }
+  .edu-row{ display:grid; grid-template-columns:repeat(var(--cols,5), 158px); gap:14px; justify-content:start; }
+  .tv-btn, .edu-link{ display:flex; align-items:center; justify-content:center; text-align:center; text-decoration:none;
+    width:100%; height:64px; padding:6px 10px; box-sizing:border-box;
+    font-family:'Jua',sans-serif; font-size:15.5px; color:#fff; word-break:keep-all; line-height:1.22;
+    border:none; border-radius:16px; cursor:pointer; transition:transform .14s, box-shadow .14s; }
+  .tv-btn{ background:var(--g-coral); box-shadow:0 5px 0 #c2453f, 0 10px 16px -8px rgba(194,69,63,.5); }
+  .tv-btn:hover{ transform:translateY(-2px); }
+  .tv-btn:active{ transform:translateY(3px); box-shadow:0 2px 0 #c2453f; }
+  .edu-link{ background:var(--edu); box-shadow:0 5px 0 var(--edu-deep), 0 10px 16px -8px rgba(217,123,62,.45); }
+  .edu-link:hover{ transform:translateY(-2px); }
+  .edu-link:active{ transform:translateY(3px); box-shadow:0 2px 0 var(--edu-deep); }
+
+  /* ===== TV(화면 띄우기) 모드 ===== */
+  .tv-exit{ display:none; position:fixed; top:18px; right:18px; z-index:60; font-family:'Jua',sans-serif; font-size:16px;
+    color:#fff; background:var(--g-coral); border:none; border-radius:999px; padding:11px 20px; cursor:pointer;
+    box-shadow:0 5px 0 #c2453f; }
+  body.tv-mode .topbar,
+  body.tv-mode .title-wrap,
+  body.tv-mode .side,
+  body.tv-mode .edutech{ display:none; }
+  body.tv-mode .tv-exit{ display:inline-block; }
+  body.tv-mode .wrap{ max-width:none; padding:0; min-height:100vh; display:flex; align-items:center; justify-content:center; }
+  body.tv-mode .layout{ display:block; width:100%; }
+  body.tv-mode .board-wrap{ width:min(94vw, calc(92vh * 10 / 7)); margin:0 auto; }
+
+  /* ===== 반응형 ===== */
+  @media (max-width:860px){
+    .layout{ grid-template-columns:1fr; }
+    .side{ flex-direction:row; flex-wrap:wrap; }
+    .area-btn{ flex:1 1 30%; font-size:16px; padding:13px 8px; }
+  }
+  @media (max-width:520px){
+    .edu-row{ grid-template-columns:repeat(var(--cols,5), 1fr); }
+    .edu-link, .tv-btn{ font-size:13px; height:58px; }
+    .cell textarea{ font-size:11px; padding-top:32%; }
+  }
+  @media (prefers-reduced-motion: reduce){
+    *{ transition:none !important; }
+    .title-img.has-img{ animation:none !important; }
+  }
+</style>
+</head>
+<body>
+
+  <button class="tv-exit" id="tvExit">✕ 화면 닫기</button>
+
+  <div class="wrap">
+
+    <!-- 상단바 -->
+    <div class="topbar">
+      <a class="back" href="index.html">← 메인으로</a>
+      <div class="who">GPS 수학 <b>풀리지도</b></div>
+    </div>
+
+    <!-- 제목 이미지 (업로드 시 자동 교체) -->
+    <div class="title-wrap">
+      <div class="title-img" id="titleImg" data-src="uploads/풀리지도-1755c353.png">
+        <div>
+          <div class="big">GPS 수학 풀리지도</div>
+          <div class="small">제목 이미지 영역 · assets/title-mandala.png</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 메인 -->
+    <div class="layout">
+
+      <!-- 만다라트 보드 -->
+      <div class="board-wrap">
+        <div class="board" id="board">
+          <img class="board__img" id="boardImg" src="assets/map1.png" alt="풀리지도 만다라트" />
+          <div class="board__ph">
+            <div>
+              <div class="ph-name" id="phName">풀리지도</div>
+              <div class="ph-sub">만다라트 이미지를 업로드해 주세요</div>
+            </div>
+          </div>
+          <div class="cells" id="cells"><!-- 9 cells injected --></div>
+        </div>
+      </div>
+
+      <!-- 우측 영역 버튼 -->
+      <div class="side" id="side"><!-- area buttons injected --></div>
+
+    </div>
+
+    <!-- 하단 에듀테크 -->
+    <div class="edutech">
+      <p class="edu-head"><span class="dot">●</span> <b id="eduArea">풀리지도</b> 영역에서 쓸 수 있는 에듀테크</p>
+      <div class="edu-row" id="eduRow"><!-- links injected --></div>
+    </div>
+
+  </div>
+
+<script>
+(function(){
+  /* ---------- 에듀테크 사이트 목록 ---------- */
+  var SITE = {
+    polypad:   { name:'폴리패드',            url:'https://polypad.amplify.com' },
+    mathapps:  { name:'math apps',           url:'https://www.mathlearningcenter.org/apps' },
+    toctoc:    { name:'똑똑 수학탐험대',      url:'https://www.toctocmath.kr/' },
+    tsherpa:   { name:'t셀파 스마트 교구',    url:'https://ele.tsherpa.co.kr/fortea/math-edu-tools/index.html' },
+    digikit:   { name:'초등 디지털 수학 교구관', url:'https://ele.tsherpa.co.kr/fortea/math-edu-tools/index.html' },
+    algeo:     { name:'알지오매스 키즈',      url:'https://www.algeomath.kr/kids/tool/introduce' },
+    geogebra:  { name:'지오지브라',           url:'https://www.geogebra.org' },
+    desmos:    { name:'데스모스',             url:'https://www.desmos.com' },
+    menti:     { name:'멘티미터',             url:'https://www.mentimeter.com' },
+    ebs:       { name:'EBS MATH',            url:'https://www.ebsmath.co.kr/mathTools/mathToolsMain' }
+  };
+
+  /* ---------- 영역 정의 ---------- */
+  var AREAS = [
+    { key:'pulli',  label:'풀리지도',     img:'assets/map1.png',
+      sites:['polypad','mathapps','toctoc','tsherpa','digikit','algeo','geogebra','desmos','menti','ebs'] },
+    { key:'number', label:'수와 연산',    img:'assets/map2.png',
+      sites:['polypad','mathapps','toctoc','tsherpa','digikit'] },
+    { key:'change', label:'변화와 관계',  img:'assets/map3.png',
+      sites:['geogebra','desmos','mathapps','toctoc','tsherpa','digikit'] },
+    { key:'shape',  label:'도형',         img:'assets/map4.png',
+      sites:['geogebra','polypad','mathapps','algeo','toctoc','tsherpa','digikit'] },
+    { key:'measure', label:'측정',        img:'assets/map5.png',
+      sites:['geogebra','polypad','mathapps','algeo','toctoc','tsherpa','digikit'] },
+    { key:'data',   label:'자료와 가능성', img:'assets/map6.png',
+      sites:['menti','ebs','polypad','mathapps','toctoc','tsherpa','digikit'] },
+    { key:'free',   label:'풀리 자유형',  img:'assets/map7.png',
+      sites:['polypad','mathapps','toctoc','tsherpa','digikit','algeo','geogebra','desmos','menti','ebs'] }
+  ];
+
+  var board   = document.getElementById('board');
+  var boardImg= document.getElementById('boardImg');
+  var phName  = document.getElementById('phName');
+  var cellsEl = document.getElementById('cells');
+  var sideEl  = document.getElementById('side');
+  var eduRow  = document.getElementById('eduRow');
+  var eduArea = document.getElementById('eduArea');
+
+  /* 셀 배치(번호): 1 2 3 / 8 ● 4 / 7 6 5  — 가운데(인덱스4)는 로고 */
+  var BADGE = [1,2,3,8,0,4,7,6,5];
+  var current = 0;
+
+  /* ---------- 9칸 입력란 생성 ---------- */
+  (function buildCells(){
+    for(var i=0;i<9;i++){
+      var cell = document.createElement('div');
+      cell.className = 'cell' + (i===4 ? ' is-center' : '');
+      if(i!==4){
+        var ta = document.createElement('textarea');
+        ta.setAttribute('data-slot', i);
+        ta.setAttribute('rows','3');
+        ta.setAttribute('placeholder','');
+        ta.addEventListener('input', onType);
+        cell.appendChild(ta);
+      }
+      cellsEl.appendChild(cell);
+    }
+  })();
+
+  function storeKey(areaKey, slot){ return 'pulli:'+areaKey+':'+slot; }
+
+  function onType(e){
+    var slot = e.target.getAttribute('data-slot');
+    try{ localStorage.setItem(storeKey(AREAS[current].key, slot), e.target.value); }catch(err){}
+  }
+
+  function loadCells(areaKey){
+    var tas = cellsEl.querySelectorAll('textarea');
+    tas.forEach(function(ta){
+      var slot = ta.getAttribute('data-slot');
+      var v = '';
+      try{ v = localStorage.getItem(storeKey(areaKey, slot)) || ''; }catch(err){}
+      ta.value = v;
+    });
+  }
+
+  /* ---------- 우측 영역 버튼 ---------- */
+  AREAS.forEach(function(a, idx){
+    var b = document.createElement('button');
+    b.className = 'area-btn';
+    b.textContent = a.label;
+    b.addEventListener('click', function(){ selectArea(idx); });
+    sideEl.appendChild(b);
+  });
+
+  /* ---------- 보드 이미지 로드 + 플레이스홀더 ---------- */
+  boardImg.addEventListener('error', function(){ board.classList.add('no-img'); });
+  boardImg.addEventListener('load',  function(){ board.classList.remove('no-img'); });
+
+  function selectArea(idx){
+    current = idx;
+    var a = AREAS[idx];
+
+    // 버튼 활성화
+    var btns = sideEl.querySelectorAll('.area-btn');
+    btns.forEach(function(btn,i){ btn.classList.toggle('on', i===idx); });
+
+    // 이미지 교체
+    board.classList.remove('no-img');
+    phName.textContent = a.label;
+    boardImg.src = a.img;
+
+    // 입력 내용 로드
+    loadCells(a.key);
+
+    // 하단 링크 교체
+    eduArea.textContent = a.label;
+    eduRow.innerHTML = '';
+    // 화면띄우기 + 사이트 = 전체 개수를 2줄로 균형 배치 (윗줄 = 올림(총/2))
+    var total = a.sites.length + 1;
+    eduRow.style.setProperty('--cols', Math.ceil(total/2));
+    var tv = document.createElement('button');
+    tv.className = 'tv-btn';
+    tv.innerHTML = '화면<br>띄우기';
+    tv.addEventListener('click', enterTV);
+    eduRow.appendChild(tv);
+
+    a.sites.forEach(function(key){
+      var s = SITE[key]; if(!s) return;
+      var link = document.createElement('a');
+      link.className = 'edu-link';
+      link.href = s.url; link.target = '_blank'; link.rel = 'noopener';
+      link.textContent = s.name;
+      eduRow.appendChild(link);
+    });
+  }
+
+  /* ---------- 제목 이미지 자동 교체 ---------- */
+  (function(){
+    var t = document.getElementById('titleImg');
+    var src = t.getAttribute('data-src');
+    var probe = new Image();
+    probe.onload = function(){
+      t.classList.add('has-img');
+      t.innerHTML = '<img src="'+src+'" alt="GPS 수학 풀리지도" />';
+    };
+    probe.src = src;
+  })();
+
+  /* ---------- 화면 띄우기(TV) 모드 ---------- */
+  function enterTV(){ document.body.classList.add('tv-mode'); window.scrollTo(0,0); }
+  function exitTV(){ document.body.classList.remove('tv-mode'); }
+  document.getElementById('tvExit').addEventListener('click', exitTV);
+  document.addEventListener('keydown', function(e){ if(e.key==='Escape') exitTV(); });
+
+  /* ---------- 시작 ---------- */
+  selectArea(0);
+})();
+</script>
+</body>
+</html>

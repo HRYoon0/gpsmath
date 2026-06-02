@@ -1,0 +1,671 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>GPS 수학으로 수학+문해력 기르기</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Jua&family=Gowun+Dodum&family=Gaegu:wght@700&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --cream:#FCF6E4;
+    --cream-deep:#F4E9C6;
+    --ink:#3c3730;
+    --g-green:#34b27b;
+    --g-coral:#ef5b54;
+    --g-blue:#3a82d6;
+    --g-pink:#ee6db0;
+    --g-yellow:#f4c43a;
+
+    /* card themes */
+    --scan:#FF9E8C;    --scan-soft:#FFE6DF;
+    --concept:#5FB1EC; --concept-soft:#DDF0FD;
+    --diary:#B98FD9;   --diary-soft:#EEE1F8;
+    --map:#5EC79A;     --map-soft:#DDF4E8;
+  }
+
+  *{ box-sizing:border-box; }
+  html,body{ margin:0; padding:0; }
+  body{
+    font-family:'Gowun Dodum', sans-serif;
+    color:var(--ink);
+    background:
+      radial-gradient(circle at 15% 0%, #FFF7E2 0%, transparent 45%),
+      radial-gradient(circle at 90% 10%, #FBEFD8 0%, transparent 40%),
+      var(--cream);
+    min-height:100vh;
+    overflow-x:hidden;
+    -webkit-text-size-adjust:100%;
+  }
+
+  /* ---- floating background doodles ---- */
+  .doodles{ position:fixed; inset:0; z-index:0; pointer-events:none; overflow:hidden; }
+  .doodle{
+    position:absolute; font-family:'Jua',sans-serif; font-weight:700;
+    opacity:.16; user-select:none;
+    animation: drift var(--d,16s) ease-in-out infinite alternate;
+  }
+  @keyframes drift{
+    from{ transform:translateY(0) rotate(var(--r,0deg)); }
+    to{ transform:translateY(-26px) rotate(calc(var(--r,0deg) + 8deg)); }
+  }
+
+  /* ---- layout ---- */
+  .wrap{ position:relative; z-index:1; max-width:1220px; margin:0 auto; padding:26px 22px 60px; }
+
+  /* ---- top mini bar ---- */
+  .topbar{ display:flex; align-items:center; justify-content:space-between; margin-bottom:18px; }
+  .logo{ font-family:'Jua',sans-serif; font-size:26px; letter-spacing:.5px; display:flex; align-items:center; gap:8px; white-space:nowrap; }
+  .logo .pin{ width:26px; height:26px; flex:none; }
+  .logo b{ font-weight:400; }
+  .logo .lg{ color:var(--g-green); } .logo .lp{ color:var(--g-coral); } .logo .ls{ color:var(--g-blue); }
+  .logo .ko{ color:var(--ink); margin-left:4px; }
+  .home-chip{
+    font-family:'Jua',sans-serif; font-size:15px; color:#9a8f76;
+    background:#fff; border:2.5px solid var(--cream-deep); border-radius:999px;
+    padding:7px 16px; box-shadow:0 3px 0 rgba(0,0,0,.05);
+  }
+
+  /* ---- hero banner ---- */
+  .hero{
+    border-radius:28px; overflow:hidden; background:#FCF7E6;
+    box-shadow:0 14px 30px -14px rgba(120,100,60,.45);
+    border:4px solid #fff; outline:3px solid var(--cream-deep);
+    animation: floaty 6s ease-in-out infinite;
+  }
+  .hero img{ display:block; width:100%; height:auto; }
+  @keyframes floaty{ 0%,100%{ transform:translateY(0);} 50%{ transform:translateY(-7px);} }
+
+  /* ---- greeting ---- */
+  .greet{
+    display:flex; align-items:center; gap:14px; justify-content:center;
+    margin:26px auto 30px; max-width:760px;
+  }
+  .compass{ width:54px; height:54px; flex:none; animation: tilt 4s ease-in-out infinite; }
+  @keyframes tilt{ 0%,100%{ transform:rotate(-8deg);} 50%{ transform:rotate(8deg);} }
+  .bubble{
+    position:relative; background:#fff; border:3.5px solid var(--cream-deep);
+    border-radius:22px; padding:14px 22px; font-size:21px; color:#5a5140;
+    box-shadow:0 6px 0 rgba(0,0,0,.06);
+  }
+  .bubble:before{
+    content:''; position:absolute; left:-13px; top:50%; transform:translateY(-50%);
+    border:9px solid transparent; border-right-color:#fff;
+    filter:drop-shadow(-3px 0 0 var(--cream-deep));
+  }
+  .bubble .pt{ color:var(--g-coral); }
+
+  /* ---- section title ---- */
+  .sec-title{
+    text-align:center; font-family:'Jua',sans-serif; font-size:30px; margin:0 0 22px;
+    color:#fff;
+    -webkit-text-stroke:5px var(--ink); paint-order:stroke fill;
+    text-shadow:0 4px 0 rgba(0,0,0,.13);
+  }
+
+  /* ---- cards grid ---- */
+  .grid{ display:grid; grid-template-columns:repeat(2,1fr); gap:24px; }
+  .card{
+    --c:var(--scan); --cs:var(--scan-soft);
+    position:relative; display:flex; align-items:center; gap:18px;
+    background:#fff; border:5px solid var(--c); border-radius:26px;
+    padding:18px; text-decoration:none; color:var(--ink);
+    box-shadow:
+      0 9px 0 -1px color-mix(in srgb, var(--c) 60%, #2a2018),
+      0 14px 16px -8px color-mix(in srgb, var(--c) 55%, transparent),
+      0 26px 34px -18px rgba(40,30,20,.4);
+    transition:transform .2s cubic-bezier(.34,1.56,.64,1), box-shadow .18s;
+    cursor:pointer;
+  }
+  .card.s1{ --c:var(--scan); --cs:var(--scan-soft); }
+  .card.s2{ --c:var(--concept); --cs:var(--concept-soft); }
+  .card.s3{ --c:var(--diary); --cs:var(--diary-soft); }
+  .card.s4{ --c:var(--map); --cs:var(--map-soft); }
+
+  .card:hover{ transform:translateY(-9px) rotate(-.6deg);
+    box-shadow:
+      0 15px 0 -1px color-mix(in srgb, var(--c) 60%, #2a2018),
+      0 22px 24px -10px color-mix(in srgb, var(--c) 55%, transparent),
+      0 42px 54px -20px rgba(40,30,20,.5); }
+  .card:active{ transform:translateY(-2px) scale(.99);
+    box-shadow:
+      0 4px 0 -1px color-mix(in srgb, var(--c) 60%, #2a2018),
+      0 9px 12px -8px color-mix(in srgb, var(--c) 55%, transparent),
+      0 16px 22px -16px rgba(40,30,20,.4); }
+
+  .badge{
+    position:absolute; top:-16px; left:-14px; width:46px; height:46px;
+    background:var(--c); color:#fff; border:4px solid #fff; border-radius:50%;
+    font-family:'Jua',sans-serif; font-size:24px; display:grid; place-items:center;
+    box-shadow:0 4px 8px rgba(0,0,0,.18); z-index:2;
+  }
+  .thumb{
+    flex:none; width:236px; height:236px; border-radius:22px; overflow:hidden;
+    background:var(--cs); border:3px solid var(--cs);
+    display:grid; place-items:center;
+  }
+  .thumb img{ width:100%; height:100%; object-fit:cover; display:block;
+    transition:transform .3s ease; }
+  .card:hover .thumb img{ transform:scale(1.06) rotate(1.5deg); }
+
+  .body{ flex:1; min-width:0; }
+  .name{
+    font-family:'Jua',sans-serif; font-size:30px; line-height:1.1; margin:2px 0 8px;
+    color:var(--c);
+  }
+  .desc{ font-size:16.5px; color:#6b6253; line-height:1.5; margin:0 0 14px;
+    word-break:keep-all; }
+  .go{
+    display:inline-flex; align-items:center; gap:7px;
+    font-family:'Jua',sans-serif; font-size:17px; color:#fff;
+    background:var(--c); border-radius:999px; padding:8px 18px;
+    box-shadow:0 4px 0 color-mix(in srgb, var(--c) 60%, #000);
+    transition:gap .18s; white-space:nowrap;
+  }
+  .card:hover .go{ gap:12px; }
+  .go .arr{ font-size:18px; }
+
+  /* ---- footer ---- */
+  .foot{ text-align:center; margin-top:42px; color:#a99e83; font-size:15px; font-family:'Jua',sans-serif; }
+  .foot .dot{ color:var(--g-pink); }
+
+  /* ---- toast ---- */
+  .toast{
+    position:fixed; left:50%; bottom:34px; transform:translate(-50%,140%);
+    background:#fff; border:4px solid var(--cream-deep); border-radius:18px;
+    padding:14px 22px; font-family:'Jua',sans-serif; font-size:18px; color:#5a5140;
+    box-shadow:0 12px 28px -10px rgba(0,0,0,.4); z-index:50; max-width:88vw;
+    transition:transform .35s cubic-bezier(.34,1.56,.64,1); display:flex; align-items:center; gap:10px;
+  }
+  .toast.show{ transform:translate(-50%,0); }
+  .toast .em{ font-size:22px; }
+
+  /* ---- auth buttons ---- */
+  .auth{ display:flex; gap:10px; align-items:center; }
+  .btn-auth{
+    font-family:'Jua',sans-serif; font-size:16px; border-radius:999px;
+    padding:9px 18px; cursor:pointer; transition:transform .15s ease, box-shadow .15s; white-space:nowrap;
+  }
+  .btn-login{ background:var(--g-blue); color:#fff; border:3px solid #fff; box-shadow:0 4px 0 #2c66ad; }
+  .btn-signup{ background:var(--g-coral); color:#fff; border:3px solid #fff; box-shadow:0 4px 0 #c2453f; }
+  .btn-auth:hover{ transform:translateY(-2px); }
+  .btn-auth:active{ transform:translateY(0); }
+  .welcome{ font-family:'Jua',sans-serif; font-size:16px; color:#5a5140; display:flex; align-items:center; gap:10px; }
+  .welcome b{ color:var(--g-green); }
+  .btn-logout{ font-family:'Jua',sans-serif; font-size:14px; background:#fff; color:#9a8f76;
+    border:2.5px solid var(--cream-deep); border-radius:999px; padding:6px 14px; cursor:pointer; }
+
+  /* ---- modal ---- */
+  .overlay{
+    position:fixed; inset:0; background:rgba(60,50,40,.45); z-index:100;
+    display:none; place-items:center; padding:20px;
+  }
+  .overlay.open{ display:grid; }
+  .modal{
+    background:var(--cream); border:5px solid #fff; outline:4px solid var(--cream-deep);
+    border-radius:26px; width:100%; max-width:520px; max-height:88vh; overflow:auto;
+    padding:24px 26px 26px; box-shadow:0 24px 54px -16px rgba(0,0,0,.55);
+    position:relative;
+  }
+  .modal::-webkit-scrollbar{ width:10px; }
+  .modal::-webkit-scrollbar-thumb{ background:var(--cream-deep); border-radius:8px; }
+
+  .m-close{
+    position:absolute; top:14px; right:16px; width:36px; height:36px; border-radius:50%;
+    border:2.5px solid var(--cream-deep); background:#fff; color:#9a8f76; font-size:20px;
+    cursor:pointer; line-height:1; font-family:'Jua',sans-serif;
+  }
+  .m-close:hover{ color:var(--g-coral); border-color:var(--g-coral); }
+
+  .m-title{
+    font-family:'Jua',sans-serif; font-size:27px; color:var(--g-coral);
+    margin:2px 0 4px; text-align:center;
+  }
+  .m-sub{ text-align:center; color:#8a8170; font-size:15px; margin:0 0 18px; }
+
+  .steps{ display:flex; gap:8px; justify-content:center; margin:0 0 18px; }
+  .steps span{
+    font-family:'Jua',sans-serif; font-size:13.5px; color:#b2a78c;
+    background:#fff; border:2.5px solid var(--cream-deep); border-radius:999px; padding:5px 14px; white-space:nowrap;
+  }
+  .steps span.on{ color:#fff; background:var(--g-coral); border-color:var(--g-coral); }
+
+  .screen{ display:none; }
+  .screen.active{ display:block; }
+
+  /* consent */
+  .consent{
+    background:#fff; border:2.5px solid var(--cream-deep); border-radius:16px;
+    padding:16px 18px; max-height:240px; overflow:auto;
+    font-family:'Gowun Dodum',sans-serif; font-size:13.5px; line-height:1.65; color:#5a5140;
+  }
+  .consent h4{ font-family:'Jua',sans-serif; font-size:16px; color:var(--g-blue); margin:14px 0 4px; }
+  .consent h4:first-child{ margin-top:0; }
+  .consent .lead{ color:#6b6253; }
+  .consent ul{ margin:4px 0 0; padding-left:18px; }
+  .consent li{ margin:2px 0; }
+
+  .agree-row{ display:flex; gap:12px; margin-top:16px; }
+  .choice{
+    flex:1; border:3px solid var(--cream-deep); background:#fff; border-radius:16px;
+    padding:14px 10px; font-family:'Jua',sans-serif; font-size:17px; color:#7a7160; cursor:pointer;
+    display:flex; align-items:center; justify-content:center; gap:8px; transition:transform .12s;
+  }
+  .choice:hover{ transform:translateY(-2px); }
+  .choice .ck{ width:22px; height:22px; border-radius:50%; border:2.5px solid currentColor;
+    display:grid; place-items:center; font-size:14px; color:transparent; }
+  .choice.yes.sel{ border-color:var(--g-green); background:#e9f8f0; color:var(--g-green); }
+  .choice.no.sel{ border-color:var(--g-coral); background:#fdeceb; color:var(--g-coral); }
+  .choice.sel .ck{ color:inherit; }
+
+  .warn{ color:var(--g-coral); font-family:'Jua',sans-serif; font-size:15px; margin:12px 0 0;
+    text-align:center; display:none; }
+  .warn.show{ display:block; }
+
+  /* form */
+  .field{ margin-bottom:14px; }
+  .field label{ font-family:'Jua',sans-serif; font-size:16px; color:#5a5140; display:block; margin-bottom:6px; }
+  .field .req{ color:var(--g-coral); }
+  .field input, .field select{
+    width:100%; font-family:'Gowun Dodum',sans-serif; font-size:16px; padding:12px 14px;
+    border:2.5px solid var(--cream-deep); border-radius:14px; background:#fff; color:var(--ink);
+  }
+  .field input:focus, .field select:focus{ outline:none; border-color:var(--g-blue); }
+  .field select{ appearance:none; background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%23999' stroke-width='3'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E"); background-repeat:no-repeat; background-position:right 14px center; padding-right:38px; }
+
+  .btn-primary{
+    width:100%; font-family:'Jua',sans-serif; font-size:19px; padding:14px; margin-top:6px;
+    border-radius:16px; border:3px solid #fff; outline:3px solid var(--g-coral);
+    background:var(--g-coral); color:#fff; cursor:pointer; box-shadow:0 5px 0 #c2453f;
+    transition:transform .12s;
+  }
+  .btn-primary:hover:not(:disabled){ transform:translateY(-2px); }
+  .btn-primary:disabled{ background:#d8cfbb; outline-color:#d8cfbb; box-shadow:0 5px 0 #bdb39b; cursor:not-allowed; }
+
+  .link-row{ text-align:center; margin-top:16px; font-size:14.5px; color:#8a8170; }
+  .link-row a{ font-family:'Jua',sans-serif; color:var(--g-blue); cursor:pointer; text-decoration:none; }
+  .link-row a:hover{ text-decoration:underline; }
+
+  .result{ text-align:center; padding:14px 0 4px; }
+  .result .face{ font-size:54px; }
+  .result p{ font-family:'Jua',sans-serif; font-size:20px; color:#5a5140; margin:10px 0 0; line-height:1.4; }
+
+  /* ---- responsive ---- */
+  @media (max-width:720px){
+    .grid{ grid-template-columns:1fr; gap:30px; }
+    .greet{ flex-direction:column; text-align:center; gap:10px; }
+    .bubble:before{ display:none; }
+    .sec-title{ font-size:26px; }
+    .name{ font-size:26px; }
+    .btn-auth{ font-size:14px; padding:8px 14px; }
+    .logo{ font-size:22px; }
+  }
+  @media (max-width:430px){
+    .card{ flex-direction:column; text-align:center; padding:22px 18px 18px; }
+    .thumb{ width:200px; height:200px; }
+    .badge{ left:50%; transform:translateX(-50%); }
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    .hero,.compass,.doodle{ animation:none !important; }
+    .card{ transition:none !important; opacity:1 !important; transform:none !important; }
+  }
+</style>
+</head>
+<body>
+
+  <div class="doodles" id="doodles" aria-hidden="true"></div>
+
+  <div class="wrap">
+
+    <!-- top mini bar -->
+    <div class="topbar">
+      <div class="logo" aria-label="GPS 수학">
+        <svg class="pin" viewBox="0 0 24 24" fill="none">
+          <path d="M5 9c0-2 .6-3.3 1.6-4.3" stroke="#3a82d6" stroke-width="2" stroke-linecap="round"/>
+          <path d="M19 9c0-2-.6-3.3-1.6-4.3" stroke="#3a82d6" stroke-width="2" stroke-linecap="round"/>
+          <path d="M12 22s6-5.6 6-10a6 6 0 1 0-12 0c0 4.4 6 10 6 10Z" fill="#ef5b54" stroke="#3c3730" stroke-width="1.6"/>
+          <circle cx="12" cy="12" r="2.4" fill="#fff"/>
+        </svg>
+        <b><span class="lg">G</span><span class="lp">p</span><span class="ls">S</span></b>
+        <b class="ko">수학</b>
+      </div>
+      <div class="auth" id="authArea">
+        <button class="btn-auth btn-login" id="btnLogin">로그인</button>
+        <button class="btn-auth btn-signup" id="btnSignup">회원가입</button>
+      </div>
+    </div>
+
+    <!-- hero banner -->
+    <div class="hero">
+      <img src="assets/banner.png" alt="GPS 수학으로 수학 + 문해력 기르기" />
+    </div>
+
+    <!-- greeting -->
+    <div class="greet">
+      <svg class="compass" viewBox="0 0 64 64" fill="none">
+        <circle cx="32" cy="32" r="28" fill="#fff" stroke="#3c3730" stroke-width="3"/>
+        <circle cx="32" cy="32" r="28" fill="none" stroke="#f4c43a" stroke-width="3" stroke-dasharray="3 6"/>
+        <polygon points="32,12 38,32 32,28 26,32" fill="#ef5b54" stroke="#3c3730" stroke-width="1.5"/>
+        <polygon points="32,52 26,32 32,36 38,32" fill="#3a82d6" stroke="#3c3730" stroke-width="1.5"/>
+        <circle cx="32" cy="32" r="3.4" fill="#fff" stroke="#3c3730" stroke-width="2"/>
+      </svg>
+      <div class="bubble">오늘은 어떤 활동을 해볼까요? 하나를 골라 <span class="pt">출발!</span> 🚀</div>
+    </div>
+
+    <!-- cards -->
+    <h2 class="sec-title">활동을 골라요</h2>
+    <div class="grid">
+
+      <a class="card s1 ready" href="gpscan.html" data-name="지피스캔">
+        <span class="badge">1</span>
+        <span class="thumb"><img src="assets/gpscan.png" alt="지피스캔" /></span>
+        <span class="body">
+          <span class="name">지피스캔</span>
+          <p class="desc">문제 속 숨은 단서를 G·P·S로 분석하고, 나만의 새 문제도 만들어요.</p>
+          <span class="go">들어가기 <span class="arr">→</span></span>
+        </span>
+      </a>
+
+      <a class="card s2 ready" href="concept.html" data-name="개념사전">
+        <span class="badge">2</span>
+        <span class="thumb"><img src="assets/concept.png" alt="개념사전" /></span>
+        <span class="body">
+          <span class="name">개념사전</span>
+          <p class="desc">수학 개념 카드를 골라 들어가서, 나만의 설명으로 사전을 채워요.</p>
+          <span class="go">들어가기 <span class="arr">→</span></span>
+        </span>
+      </a>
+
+      <a class="card s3 ready" href="diary.html" data-name="수학일기">
+        <span class="badge">3</span>
+        <span class="thumb"><img src="assets/diary.png" alt="수학일기" /></span>
+        <span class="body">
+          <span class="name">수학일기</span>
+          <p class="desc">달력에서 이번 주 주제를 골라, 일상 속 수학 이야기를 일기로 써요.</p>
+          <span class="go">들어가기 <span class="arr">→</span></span>
+        </span>
+      </a>
+
+      <a class="card s4 ready" href="mandala.html" data-name="풀리지도">
+        <span class="badge">4</span>
+        <span class="thumb"><img src="assets/mandala.png" alt="풀리지도" /></span>
+        <span class="body">
+          <span class="name">풀리지도</span>
+          <p class="desc">만다라트 9칸에 생각을 적으며, 문제 푸는 길을 차근차근 찾아요.</p>
+          <span class="go">들어가기 <span class="arr">→</span></span>
+        </span>
+      </a>
+
+    </div>
+
+    <div class="foot">GPS 수학 <span class="dot">●</span> 수학 + 문해력 기르기</div>
+
+  </div>
+
+  <!-- ===== Auth modal ===== -->
+  <div class="overlay" id="overlay">
+    <div class="modal" role="dialog" aria-modal="true">
+      <button class="m-close" id="mClose" aria-label="닫기">✕</button>
+
+      <!-- screen: login -->
+      <section class="screen" id="scLogin">
+        <h3 class="m-title">로그인</h3>
+        <p class="m-sub">아이디와 비밀번호를 입력해 주세요</p>
+        <div class="field">
+          <label>아이디</label>
+          <input type="text" id="loginId" placeholder="아이디를 입력하세요" autocomplete="username" />
+        </div>
+        <div class="field">
+          <label>비밀번호</label>
+          <input type="password" id="loginPw" placeholder="비밀번호를 입력하세요" autocomplete="current-password" />
+        </div>
+        <p class="warn" id="loginWarn">아이디 또는 비밀번호를 확인해 주세요.</p>
+        <button class="btn-primary" id="doLogin">로그인</button>
+        <div class="link-row">아직 회원이 아니신가요? <a id="goSignup">회원가입</a></div>
+      </section>
+
+      <!-- screen: agreement -->
+      <section class="screen" id="scAgree">
+        <h3 class="m-title">회원가입</h3>
+        <div class="steps"><span class="on">1. 약관 동의</span><span>2. 정보 입력</span></div>
+        <h4 style="font-family:'Jua',sans-serif;font-size:18px;color:#5a5140;text-align:center;margin:0 0 12px;">개인정보 수집·이용 동의서</h4>
+        <div class="consent">
+          <p class="lead">본 홈페이지는 GPS 수학문해력 학습 활동 제공을 위하여 아래와 같이 개인정보를 수집·이용합니다. 내용을 확인한 후 동의 여부를 선택해 주시기 바랍니다.</p>
+          <h4>1. 수집하는 개인정보 항목</h4>
+          홈페이지 회원가입 및 학습 활동 제공을 위해 다음 정보를 수집합니다.
+          <ul><li>아이디</li><li>비밀번호</li><li>사용자의 학년</li><li>사용자가 사용하는 수학 교과서 출판사</li></ul>
+          <h4>2. 개인정보 수집·이용 목적</h4>
+          수집한 개인정보는 다음의 목적으로 사용됩니다.
+          <ul>
+            <li>홈페이지 회원가입 및 로그인 관리</li>
+            <li>학생 개인별 학습 활동 제공</li>
+            <li>학년별 수학 문장제 문제 및 학습 자료 제공</li>
+            <li>수학 교과서 출판사 정보를 반영한 맞춤형 문제 제공</li>
+            <li>GPS’ CAN, 수학 개념사전, 수학일기, 풀리지도 등 학습 활동 이용 지원</li>
+          </ul>
+          <h4>3. 개인정보 보유 및 이용 기간</h4>
+          수집한 개인정보는 회원이 홈페이지를 이용하는 기간 동안 보관하며, 회원 탈퇴 또는 학습 활동 종료 시 삭제합니다.
+          <h4>4. 개인정보 제3자 제공 여부</h4>
+          수집한 개인정보는 외부 기관이나 제3자에게 제공하지 않습니다.
+          <h4>5. 개인정보 수집·이용 동의 거부 권리</h4>
+          개인정보 수집·이용에 동의하지 않을 권리가 있습니다. 다만, 필수 정보 수집에 동의하지 않을 경우 회원가입 및 홈페이지 학습 활동 이용이 어려울 수 있습니다.
+        </div>
+
+        <div class="agree-row">
+          <button class="choice yes" id="chYes"><span class="ck">✓</span>동의합니다</button>
+          <button class="choice no" id="chNo"><span class="ck">✓</span>동의하지 않습니다</button>
+        </div>
+        <p class="warn" id="agreeWarn">개인정보 동의를 하지 않으면 회원가입이 어렵습니다.</p>
+        <button class="btn-primary" id="toForm" disabled>다음</button>
+      </section>
+
+      <!-- screen: form -->
+      <section class="screen" id="scForm">
+        <h3 class="m-title">회원가입</h3>
+        <div class="steps"><span>1. 약관 동의</span><span class="on">2. 정보 입력</span></div>
+        <div class="field">
+          <label>아이디 <span class="req">*</span></label>
+          <input type="text" id="suId" placeholder="사용할 아이디를 입력하세요" />
+        </div>
+        <div class="field">
+          <label>비밀번호 <span class="req">*</span></label>
+          <input type="password" id="suPw" placeholder="비밀번호를 입력하세요" />
+        </div>
+        <div class="field">
+          <label>비밀번호 확인 <span class="req">*</span></label>
+          <input type="password" id="suPw2" placeholder="비밀번호를 다시 입력하세요" />
+        </div>
+        <div class="field">
+          <label>학년 <span class="req">*</span></label>
+          <select id="suGrade">
+            <option value="" selected disabled>학년을 선택하세요</option>
+            <option>1학년</option><option>2학년</option><option>3학년</option>
+            <option>4학년</option><option>5학년</option><option>6학년</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>수학 교과서 출판사 <span class="req">*</span></label>
+          <select id="suPub">
+            <option value="" selected disabled>출판사를 선택하세요</option>
+            <option>동아출판(나귀수)</option>
+            <option>디딤돌교육(최수일)</option>
+            <option>미래엔(장혜원)</option>
+            <option>비상교육(방정숙)</option>
+            <option>아이스크림미디어(김성여)</option>
+            <option>와이비엠(류희찬)</option>
+            <option>지학사(강문봉)</option>
+            <option>천재교과서(박만구)</option>
+            <option>천재교과서(한대희)</option>
+          </select>
+        </div>
+        <p class="warn" id="formWarn">비밀번호를 확인해 주세요.</p>
+        <button class="btn-primary" id="doSignup" disabled>회원가입하기</button>
+      </section>
+
+      <!-- screen: done -->
+      <section class="screen" id="scDone">
+        <div class="result">
+          <div class="face">🎉</div>
+          <p>회원가입이 완료되었습니다.<br/>다시 로그인해주세요.</p>
+        </div>
+        <button class="btn-primary" id="doneBtn" style="margin-top:22px;">메인으로 가기</button>
+      </section>
+
+    </div>
+  </div>
+
+  <div class="toast" id="toast" role="status"><span class="em">🚧</span><span id="toastTxt"></span></div>
+
+<script>
+  // floating background doodles
+  (function(){
+    const cont = document.getElementById('doodles');
+    const items = ['+','×','÷','=','5','7','3','9','%','①','★','＞'];
+    const colors = ['#ef5b54','#3a82d6','#34b27b','#ee6db0','#f4c43a','#B98FD9'];
+    const N = 16;
+    for(let i=0;i<N;i++){
+      const d = document.createElement('span');
+      d.className='doodle';
+      d.textContent = items[Math.floor(Math.random()*items.length)];
+      d.style.left = Math.random()*96 + 'vw';
+      d.style.top = Math.random()*96 + 'vh';
+      d.style.fontSize = (28 + Math.random()*46) + 'px';
+      d.style.color = colors[Math.floor(Math.random()*colors.length)];
+      d.style.setProperty('--d', (12 + Math.random()*10) + 's');
+      d.style.setProperty('--r', (Math.random()*30-15) + 'deg');
+      d.style.animationDelay = (-Math.random()*8)+'s';
+      cont.appendChild(d);
+    }
+  })();
+
+  // card click -> friendly toast (pages are being prepared)
+  const toast = document.getElementById('toast');
+  const toastTxt = document.getElementById('toastTxt');
+  let tHide;
+  document.querySelectorAll('.card').forEach(card=>{
+    card.addEventListener('click', (e)=>{
+      if(card.classList.contains('ready')) return; // real page — allow navigation
+      e.preventDefault();
+      const name = card.getAttribute('data-name');
+      toastTxt.textContent = name + ' 페이지는 준비 중이에요! 곧 만나요 😊';
+      toast.classList.add('show');
+      clearTimeout(tHide);
+      tHide = setTimeout(()=>toast.classList.remove('show'), 2600);
+    });
+  });
+
+  function showToast(msg, emoji){
+    document.querySelector('#toast .em').textContent = emoji || '🎉';
+    toastTxt.textContent = msg;
+    toast.classList.add('show');
+    clearTimeout(tHide);
+    tHide = setTimeout(()=>toast.classList.remove('show'), 2600);
+  }
+
+  /* ================= Auth flow ================= */
+  const overlay = document.getElementById('overlay');
+  const screens = ['scLogin','scAgree','scForm','scDone'];
+  function showScreen(id){
+    screens.forEach(s => document.getElementById(s).classList.toggle('active', s===id));
+  }
+  function openModal(id){ resetAgree(); resetForm(); showScreen(id); overlay.classList.add('open'); }
+  function closeModal(){ overlay.classList.remove('open'); }
+
+  document.getElementById('btnLogin').addEventListener('click', ()=>{ openModal('scLogin'); });
+  document.getElementById('btnSignup').addEventListener('click', ()=>{ openModal('scAgree'); });
+  document.getElementById('mClose').addEventListener('click', closeModal);
+  overlay.addEventListener('click', e=>{ if(e.target===overlay) closeModal(); });
+  document.addEventListener('keydown', e=>{ if(e.key==='Escape') closeModal(); });
+  document.getElementById('goSignup').addEventListener('click', ()=>{ resetAgree(); resetForm(); showScreen('scAgree'); });
+
+  /* --- agreement step --- */
+  const chYes = document.getElementById('chYes');
+  const chNo  = document.getElementById('chNo');
+  const toForm = document.getElementById('toForm');
+  const agreeWarn = document.getElementById('agreeWarn');
+  let agreed = false;
+  function resetAgree(){
+    agreed=false; chYes.classList.remove('sel'); chNo.classList.remove('sel');
+    agreeWarn.classList.remove('show'); toForm.disabled=true;
+  }
+  chYes.addEventListener('click', ()=>{
+    agreed=true; chYes.classList.add('sel'); chNo.classList.remove('sel');
+    agreeWarn.classList.remove('show'); toForm.disabled=false;
+  });
+  chNo.addEventListener('click', ()=>{
+    agreed=false; chNo.classList.add('sel'); chYes.classList.remove('sel');
+    agreeWarn.classList.add('show'); toForm.disabled=true;
+  });
+  toForm.addEventListener('click', ()=>{ if(agreed) showScreen('scForm'); });
+
+  /* --- info form step --- */
+  const fId=document.getElementById('suId'), fPw=document.getElementById('suPw'),
+        fPw2=document.getElementById('suPw2'), fGrade=document.getElementById('suGrade'),
+        fPub=document.getElementById('suPub');
+  const formFields=[fId,fPw,fPw2,fGrade,fPub];
+  const doSignup=document.getElementById('doSignup');
+  const formWarn=document.getElementById('formWarn');
+  function resetForm(){
+    formFields.forEach(f=>{ f.value=''; });
+    fGrade.selectedIndex=0; fPub.selectedIndex=0;
+    formWarn.classList.remove('show'); doSignup.disabled=true;
+  }
+  function validateForm(){
+    const allFilled = formFields.every(f=> f.value.trim() !== '');
+    doSignup.disabled = !allFilled;
+  }
+  formFields.forEach(f=>{
+    f.addEventListener('input', ()=>{ formWarn.classList.remove('show'); validateForm(); });
+    f.addEventListener('change', ()=>{ formWarn.classList.remove('show'); validateForm(); });
+  });
+  doSignup.addEventListener('click', ()=>{
+    if(fPw.value !== fPw2.value){
+      formWarn.textContent = '비밀번호를 확인해 주세요.';
+      formWarn.classList.add('show');
+      return;
+    }
+    try{
+      localStorage.setItem('gps_account', JSON.stringify({
+        id:fId.value.trim(), pw:fPw.value, grade:fGrade.value, pub:fPub.value
+      }));
+    }catch(e){}
+    showScreen('scDone');
+  });
+  document.getElementById('doneBtn').addEventListener('click', ()=>{
+    closeModal();
+    showToast('회원가입이 완료되었습니다. 다시 로그인해주세요.', '🎉');
+  });
+
+  /* --- login step --- */
+  const loginId=document.getElementById('loginId'), loginPw=document.getElementById('loginPw'),
+        loginWarn=document.getElementById('loginWarn');
+  [loginId,loginPw].forEach(f=> f.addEventListener('input', ()=> loginWarn.classList.remove('show')));
+  document.getElementById('doLogin').addEventListener('click', ()=>{
+    let acc=null;
+    try{ acc=JSON.parse(localStorage.getItem('gps_account')||'null'); }catch(e){}
+    if(acc && loginId.value.trim()===acc.id && loginPw.value===acc.pw){
+      closeModal();
+      renderWelcome(acc.id);
+      showToast(acc.id + '님, 환영해요! 🧭', '😊');
+    } else {
+      loginWarn.classList.add('show');
+    }
+  });
+
+  function renderWelcome(name){
+    const area=document.getElementById('authArea');
+    area.innerHTML = '<span class="welcome"><b>'+name+'</b>님 환영해요!</span>'+
+                     '<button class="btn-logout" id="btnLogout">로그아웃</button>';
+    document.getElementById('btnLogout').addEventListener('click', ()=>{
+      area.innerHTML = '<button class="btn-auth btn-login" id="btnLogin">로그인</button>'+
+                       '<button class="btn-auth btn-signup" id="btnSignup">회원가입</button>';
+      document.getElementById('btnLogin').addEventListener('click', ()=>openModal('scLogin'));
+      document.getElementById('btnSignup').addEventListener('click', ()=>openModal('scAgree'));
+      showToast('로그아웃되었어요. 안녕히 가세요! 👋', '👋');
+    });
+  }
+</script>
+</body>
+</html>

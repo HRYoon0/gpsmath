@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>개념사전 · GPS 수학</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Jua&family=Gowun+Dodum&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --cream:#FCF6E4; --cream-deep:#F4E9C6; --ink:#3c3730;
+    --g-green:#34b27b; --g-coral:#ef5b54; --g-blue:#3a82d6; --g-pink:#ee6db0; --g-yellow:#f4c43a;
+    --concept:#5FB1EC; --concept-deep:#3a82d6; --concept-soft:#DDF0FD;
+    --insta:#C13584;
+  }
+  *{ box-sizing:border-box; }
+  html,body{ margin:0; padding:0; }
+  body{
+    font-family:'Gowun Dodum',sans-serif; color:var(--ink);
+    background:
+      radial-gradient(circle at 12% -5%, #EAF4FE 0%, transparent 42%),
+      radial-gradient(circle at 92% 4%, #FBEFD8 0%, transparent 38%),
+      var(--cream);
+    min-height:100vh; overflow-x:hidden;
+  }
+  .wrap{ max-width:1080px; margin:0 auto; padding:22px 22px 70px; }
+
+  /* topbar */
+  .topbar{ display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:14px; }
+  .back{ display:inline-flex; align-items:center; gap:7px; text-decoration:none; font-family:'Jua',sans-serif;
+    font-size:16px; color:#6b6253; background:#fff; border:3px solid var(--cream-deep); border-radius:999px;
+    padding:9px 18px; box-shadow:0 3px 0 rgba(0,0,0,.06); transition:transform .15s; white-space:nowrap; cursor:pointer; }
+  .back:hover{ transform:translateX(-3px); }
+  .who{ font-family:'Jua',sans-serif; font-size:15px; color:#8a8170; white-space:nowrap; }
+  .who b{ color:var(--concept-deep); }
+
+  .view{ display:none; }
+  .view.active{ display:block; }
+
+  /* ===== 제목 이미지 placeholder ===== */
+  .title-img{ margin:6px auto 26px; max-width:560px; height:130px; border-radius:24px;
+    border:3.5px dashed var(--concept); background:repeating-linear-gradient(45deg,#fff,#fff 14px,#EDF6FE 14px,#EDF6FE 28px);
+    display:grid; place-items:center; text-align:center; color:var(--concept-deep); font-family:'Jua',sans-serif;
+    box-shadow:0 8px 22px -14px rgba(58,130,214,.5); animation:floaty 6s ease-in-out infinite; }
+  @keyframes floaty{ 0%,100%{ transform:translateY(0);} 50%{ transform:translateY(-8px);} }
+  .title-img .big{ font-size:30px; letter-spacing:1px; }
+  .title-img.has-img{ border:none; background:none; box-shadow:none; height:auto; padding:0; }
+  .title-img.has-img img{ width:100%; max-width:480px; height:auto; display:block; }
+  .title-img .small{ font-size:13px; color:#9bb6cf; font-family:'Gowun Dodum',sans-serif; margin-top:6px; }
+  @media (prefers-reduced-motion: reduce){ .title-img{ animation:none; } }
+
+  /* ===== 홈: 두 개의 큰 버튼 ===== */
+  .home-choice{ display:grid; grid-template-columns:1fr 1fr; gap:24px; max-width:760px; margin:0 auto; }
+  .big-btn{ background:#fff; border:5px solid; border-radius:26px; padding:38px 26px; cursor:pointer; text-align:center;
+    transition:transform .16s; box-shadow:0 14px 28px -18px rgba(0,0,0,.4); }
+  .big-btn:hover{ transform:translateY(-7px); }
+  .big-btn .ic{ font-size:60px; line-height:1; }
+  .big-btn .btn-img{ display:block; width:100%; max-width:300px; height:170px; object-fit:contain; margin:0 auto 6px; }
+  /* 이미지만 보이는 버튼 (사각형 박스 제거) */
+  .big-btn.img-btn{ background:none; border:none; box-shadow:none; padding:0; transition:transform .18s cubic-bezier(.34,1.4,.64,1); }
+  .big-btn.img-btn .btn-img{ max-width:none; height:auto; margin:0; transition:filter .2s ease, transform .2s ease;
+    filter:drop-shadow(0 3px 3px rgba(70,50,30,.16)) drop-shadow(0 10px 12px rgba(70,50,30,.18)) drop-shadow(0 22px 30px rgba(70,50,30,.22)); }
+  .big-btn.img-btn:hover{ transform:translateY(-9px); }
+  .big-btn.img-btn:hover .btn-img{ transform:scale(1.035);
+    filter:drop-shadow(0 5px 5px rgba(70,50,30,.18)) drop-shadow(0 16px 18px rgba(70,50,30,.2)) drop-shadow(0 34px 46px rgba(70,50,30,.3)); }
+  .big-btn.img-btn:active{ transform:translateY(-2px); }
+  .big-btn.img-btn:active .btn-img{ transform:scale(1.0);
+    filter:drop-shadow(0 2px 3px rgba(70,50,30,.18)) drop-shadow(0 6px 8px rgba(70,50,30,.2)); }
+  .big-btn.img-btn h2{ margin:18px 0 0; }
+  .big-btn h2{ font-family:'Jua',sans-serif; font-size:26px; margin:16px 0 6px; }
+  .big-btn p{ margin:0; color:#8a8170; font-size:15px; line-height:1.5; word-break:keep-all; }
+  .bb-dict{ border-color:var(--concept); } .bb-dict h2{ color:var(--concept-deep); }
+  .bb-gallery{ border-color:var(--insta); } .bb-gallery h2{ color:var(--insta); }
+
+  /* ===== 섹션 헤더 ===== */
+  .sec-head{ text-align:center; margin:2px 0 24px; }
+  .sec-head h1{ font-family:'Jua',sans-serif; font-size:28px; margin:0 0 6px; color:var(--concept-deep); }
+  .sec-head.insta h1{ color:var(--insta); }
+  .sec-head p{ margin:0; color:#8a8170; font-size:15.5px; }
+
+  /* ===== 개념사전 목록 (인스타그램 게시글) ===== */
+  .dict-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:22px; }
+  .dict-card{ background:#fff; border:1.5px solid #ededed; border-radius:14px; cursor:pointer; overflow:hidden;
+    box-shadow:0 6px 18px -12px rgba(0,0,0,.3); transition:transform .15s, box-shadow .15s; display:flex; flex-direction:column; text-align:left; }
+  .dict-card:hover{ transform:translateY(-5px); box-shadow:0 16px 30px -14px rgba(0,0,0,.38); }
+
+  /* 헤더: 아바타 + 핸들 */
+  .ig-head{ display:flex; align-items:center; gap:9px; padding:10px 12px; }
+  .ig-ava{ width:34px; height:34px; flex:none; border-radius:50%; display:grid; place-items:center; font-size:17px;
+    background:linear-gradient(135deg,#F58529,#DD2A7B 55%,#8134AF); color:#fff;
+    box-shadow:0 0 0 2px #fff, 0 0 0 3.5px #eee; }
+  .ig-meta{ display:flex; flex-direction:column; line-height:1.2; min-width:0; }
+  .ig-meta b{ font-family:'Jua',sans-serif; font-size:14px; color:var(--ink); }
+  .ig-meta .ig-sub{ font-size:11.5px; color:#9a8f76; }
+  .ig-more{ margin-left:auto; color:#8a8170; font-size:18px; letter-spacing:1px; }
+
+  /* 미디어 (게시 사진) */
+  .ig-media{ width:100%; aspect-ratio:4/5; overflow:hidden; background:var(--concept-soft); border-top:1px solid #f1f1f1; border-bottom:1px solid #f1f1f1; }
+  .ig-media img{ width:100%; height:100%; object-fit:cover; object-position:top center; display:block; }
+
+  /* 액션 줄 */
+  .ig-actions{ display:flex; align-items:center; gap:14px; padding:10px 12px 4px; color:#262626; }
+  .ig-actions span{ display:inline-flex; }
+  .ig-actions svg{ width:24px; height:24px; display:block; }
+  .ig-actions .heart{ cursor:pointer; transition:transform .12s; }
+  .ig-actions .heart:active{ transform:scale(1.25); }
+  .ig-actions .bm{ margin-left:auto; }
+  .ig-likes{ padding:1px 12px 0; font-family:'Jua',sans-serif; font-size:13.5px; color:var(--ink); }
+  .ig-cap{ padding:5px 12px 2px; font-size:13.5px; color:#3a3530; line-height:1.45; }
+  .ig-cap b{ font-family:'Jua',sans-serif; }
+  .ig-cap .cname{ color:var(--concept-deep); }
+  .ig-cap .hash{ color:#3a6ea5; }
+  .ig-view{ padding:4px 12px 12px; font-size:12.5px; color:#9a8f76; }
+
+  /* ===== 개념 상세 ===== */
+  .detail-grid{ display:grid; grid-template-columns:1.1fr .9fr; gap:26px; align-items:start; }
+  .detail-img-box{ background:#fff; border:4px solid #fff; outline:3px solid var(--cream-deep); border-radius:22px;
+    overflow:hidden; box-shadow:0 14px 30px -16px rgba(0,0,0,.4); }
+  .detail-img-box img{ width:100%; display:block; }
+  .detail-side{ display:flex; flex-direction:column; gap:16px; }
+  .detail-tagrow{ display:flex; gap:8px; flex-wrap:wrap; }
+  .tagpill{ font-family:'Jua',sans-serif; font-size:14px; padding:6px 14px; border-radius:999px; white-space:nowrap; }
+  .tagpill.area{ background:var(--concept-soft); color:var(--concept-deep); }
+  .tagpill.unit{ background:#FFE7DF; color:#e0703e; }
+  .detail-name{ font-family:'Jua',sans-serif; font-size:34px; margin:2px 0 0; color:var(--concept-deep); }
+  .side-card{ background:#fff; border:3px solid var(--cream-deep); border-radius:18px; padding:20px; }
+  .make-btn{ width:100%; font-family:'Jua',sans-serif; font-size:19px; color:#fff;
+    background:linear-gradient(120deg,#F58529,#DD2A7B 55%,#8134AF); border:none; border-radius:16px; padding:15px;
+    cursor:pointer; box-shadow:0 6px 0 rgba(0,0,0,.15); transition:transform .12s; display:flex; align-items:center; justify-content:center; gap:9px; }
+  .make-btn:hover{ transform:translateY(-2px); }
+  .make-hint{ font-size:13.5px; color:#9a8f76; margin:10px 2px 0; line-height:1.5; word-break:keep-all; }
+  .after-padlet{ display:none; background:var(--concept-soft); border:2.5px dashed var(--concept); border-radius:16px; padding:18px; }
+  .after-padlet.show{ display:block; animation:pop .3s ease; }
+  @keyframes pop{ from{ transform:scale(.96); opacity:0; } to{ transform:scale(1); opacity:1; } }
+  .after-padlet p{ margin:0 0 12px; font-family:'Jua',sans-serif; font-size:17px; color:var(--concept-deep); line-height:1.5; word-break:keep-all; }
+  .link-btn{ font-family:'Jua',sans-serif; font-size:16px; color:#fff; background:var(--g-coral); border:none;
+    border-radius:14px; padding:12px 20px; cursor:pointer; box-shadow:0 4px 0 #c2453f; width:100%; }
+  .ghost-btn{ font-family:'Jua',sans-serif; font-size:15px; color:var(--insta); background:#fff; border:2.5px solid #f3cfe4;
+    border-radius:14px; padding:11px 18px; cursor:pointer; width:100%; }
+
+  /* ===== 갤러리 ===== */
+  .area-filter{ display:flex; gap:9px; flex-wrap:wrap; justify-content:center; margin-bottom:24px; }
+  .area-filter .chip{ font-family:'Jua',sans-serif; font-size:15px; color:#7a7160; background:#fff;
+    border:3px solid var(--cream-deep); border-radius:999px; padding:9px 18px; cursor:pointer; transition:transform .12s; white-space:nowrap; }
+  .area-filter .chip:hover{ transform:translateY(-2px); }
+  .area-filter .chip.on{ background:var(--insta); color:#fff; border-color:#fff; outline:3px solid var(--insta); }
+
+  .monthly-head{ display:flex; align-items:center; gap:9px; font-family:'Jua',sans-serif; font-size:20px; color:var(--insta); margin:0 0 14px; }
+  .monthly-row{ display:grid; grid-template-columns:repeat(4,1fr); gap:16px; margin-bottom:30px; }
+  .post-actions{ display:flex; justify-content:center; margin-bottom:26px; }
+  .upload-cta{ font-family:'Jua',sans-serif; font-size:18px; color:#fff;
+    background:linear-gradient(120deg,#F58529,#DD2A7B 55%,#8134AF); border:none; border-radius:16px; padding:13px 28px;
+    cursor:pointer; box-shadow:0 5px 0 rgba(0,0,0,.15); transition:transform .12s; }
+  .upload-cta:hover{ transform:translateY(-2px); }
+
+  .feed{ display:grid; grid-template-columns:repeat(3,1fr); gap:18px; }
+  .empty{ grid-column:1/-1; text-align:center; color:#a99e83; font-family:'Jua',sans-serif; font-size:17px;
+    background:#fff; border:2.5px dashed var(--cream-deep); border-radius:18px; padding:40px 20px; }
+
+  /* ===== GPS스타그램 포토카드 (예시/생성 공통) ===== */
+  .feed.gfeed, .monthly-row.gfeed{ display:block; column-gap:18px; }
+  .feed.gfeed{ column-count:3; }
+  .monthly-row.gfeed{ column-count:4; column-gap:16px; }
+  .gcard{ background:#fff; border:1px solid #eee; border-radius:16px; overflow:hidden;
+    box-shadow:0 10px 26px -16px rgba(0,0,0,.4); break-inside:avoid; margin-bottom:18px; position:relative; }
+  .gcard.shot{ padding:0; }
+  .gc-shot{ width:100%; display:block; }
+
+  /* 카드 크롬(생성 카드) */
+  .gc-pad{ padding:16px 16px 18px; }
+  .gc-top{ display:flex; align-items:center; justify-content:space-between; margin-bottom:12px; }
+  .gc-logo{ display:inline-flex; align-items:baseline; font-family:'Jua',sans-serif; font-size:26px; line-height:1;
+    transform:skewX(-7deg); letter-spacing:-.5px; }
+  .gc-logo .l1{ color:#e8493b; } .gc-logo .l2{ color:#f4b41c; } .gc-logo .l3{ color:#2fa84f; }
+  .gc-logo .l4{ color:#191919; }
+  .gc-menu{ display:flex; flex-direction:column; gap:3px; }
+  .gc-menu i{ width:5px; height:5px; border-radius:50%; background:#3a3a3a; }
+  .gc-photo{ border:5px solid #111; border-radius:2px; overflow:hidden; aspect-ratio:1/1; background:#f3f0e8; }
+  .gc-photo img{ width:100%; height:100%; object-fit:cover; display:block; }
+  .gc-photo.empty{ display:grid; place-items:center; color:#bbb; font-family:'Jua',sans-serif; font-size:16px; border-style:solid; }
+  .gc-act{ display:flex; align-items:center; gap:14px; margin:14px 2px 10px; color:#1a1a1a; }
+  .gc-act svg{ width:28px; height:28px; display:block; }
+  .gc-act .bm{ margin-left:auto; }
+  .gc-cap{ font-size:16px; line-height:1.5; color:#222; word-break:keep-all; padding:0 2px; }
+  .gc-cap .gc-title{ font-family:'Jua',sans-serif; color:#4aa3e8; }
+  .gc-cap .gc-us{ color:#4aa3e8; font-weight:bold; }
+  .gcard .pc-del{ position:absolute; top:10px; right:10px; z-index:2;
+    font-family:'Gowun Dodum',sans-serif; font-size:12.5px; color:var(--g-coral); background:rgba(255,255,255,.92);
+    border:2px solid #f6cfcc; border-radius:10px; padding:3px 10px; cursor:pointer; box-shadow:0 2px 6px rgba(0,0,0,.12); }
+  .gc-monthly-badge{ position:absolute; top:10px; left:10px; z-index:2; background:#ffce3a; color:#7a4d00;
+    font-family:'Jua',sans-serif; font-size:12.5px; padding:4px 10px; border-radius:999px; box-shadow:0 3px 8px rgba(0,0,0,.15); }
+
+  /* 업로드 미리보기 카드 */
+  .preview-wrap{ max-width:340px; margin:0 auto 20px; }
+  .preview-label{ text-align:center; font-family:'Jua',sans-serif; font-size:14px; color:#9a8f76; margin-bottom:8px; }
+
+  /* 포토카드 (구버전, 사용 안함) */
+  .pc{ background:#fff; border:3px solid #fff; border-radius:18px; overflow:hidden; box-shadow:0 8px 20px -12px rgba(0,0,0,.32); }
+  .pc-media{ position:relative; aspect-ratio:1/1; background:linear-gradient(135deg,#FDEFF6,#EDE3FB); display:grid; place-items:center; overflow:hidden; }
+  .pc-media img{ width:100%; height:100%; object-fit:cover; display:block; }
+  .pc-media .emoji{ font-size:62px; }
+  .pc-tag{ position:absolute; left:10px; bottom:10px; background:rgba(0,0,0,.55); color:#fff; font-family:'Jua',sans-serif;
+    font-size:13px; padding:5px 11px; border-radius:999px; }
+  .pc-body{ padding:13px 15px 15px; }
+  .pc-head{ display:flex; align-items:center; justify-content:space-between; font-size:14px; }
+  .pc-head b{ font-family:'Jua',sans-serif; color:var(--ink); white-space:nowrap; }
+  .pc-del{ font-family:'Gowun Dodum',sans-serif; font-size:12.5px; color:var(--g-coral); background:#fff;
+    border:2px solid #f6cfcc; border-radius:10px; padding:3px 10px; cursor:pointer; }
+  .pc-title{ font-family:'Jua',sans-serif; font-size:17px; margin:8px 0 4px; color:var(--ink); }
+  .pc-desc{ font-size:14px; color:#6b6253; line-height:1.5; word-break:keep-all; }
+  .pc-foot{ display:flex; gap:14px; margin-top:11px; font-size:14px; color:#8a8170; }
+  .pc-foot .like{ cursor:pointer; }
+  .pc.mini .pc-body{ padding:11px 13px 13px; }
+  .pc.mini .pc-desc{ font-size:13px; }
+
+  /* ===== 업로드 ===== */
+  .up-card{ max-width:560px; margin:0 auto; background:#fff; border:3px solid var(--cream-deep); border-radius:22px; padding:26px; }
+
+  .gpscan-banner{ display:none; max-width:560px; margin:0 auto 16px; align-items:center; gap:14px; flex-wrap:wrap;
+    justify-content:space-between; background:var(--concept-soft); border:2.5px dashed var(--concept); border-radius:18px; padding:14px 18px; }
+  .gpscan-banner.show{ display:flex; animation:pop .3s ease; }
+  .gpscan-banner .gb-text{ font-family:'Gowun Dodum',sans-serif; font-size:15px; color:#3a5e80; line-height:1.5; word-break:keep-all; flex:1; min-width:200px; }
+  .gpscan-banner .gb-text b{ font-family:'Jua',sans-serif; color:var(--concept-deep); }
+  .gpscan-banner .gb-btn{ font-family:'Jua',sans-serif; font-size:15px; color:#fff; background:var(--g-coral); border:none;
+    border-radius:12px; padding:11px 18px; cursor:pointer; box-shadow:0 4px 0 #c2453f; white-space:nowrap; transition:transform .12s; }
+  .gpscan-banner .gb-btn:hover{ transform:translateY(-2px); }
+  /* 상세 사이드카드 안: 세로 배치(문구 위, 버튼 아래) */
+  .gpscan-banner.detail{ flex-direction:column; align-items:stretch; }
+  .gpscan-banner.detail .gb-text{ min-width:0; }
+  .gpscan-banner.detail .gb-btn{ width:100%; margin-top:4px; }
+  .up-preview{ aspect-ratio:4/3; border-radius:16px; border:2.5px dashed var(--insta); background:#FDF4FA;
+    display:grid; place-items:center; cursor:pointer; overflow:hidden; margin-bottom:18px; }
+  .up-preview .ph{ font-family:'Jua',sans-serif; color:#c98fb4; text-align:center; font-size:18px; line-height:1.6; }
+  .up-preview img{ width:100%; height:100%; object-fit:cover; }
+  .ufield{ margin-bottom:15px; }
+  .ufield label{ font-family:'Jua',sans-serif; font-size:16px; color:#5a5140; display:block; margin-bottom:6px; }
+  .ufield input, .ufield textarea{ width:100%; font-family:'Gowun Dodum',sans-serif; font-size:16px; padding:12px 14px;
+    border:2.5px solid var(--cream-deep); border-radius:14px; background:#fffdf6; color:var(--ink); }
+  .ufield textarea{ resize:vertical; min-height:84px; line-height:1.55; }
+  .ufield input:focus, .ufield textarea:focus{ outline:none; border-color:var(--insta); }
+  .post-btn{ width:100%; font-family:'Jua',sans-serif; font-size:19px; color:#fff;
+    background:linear-gradient(120deg,#F58529,#DD2A7B 55%,#8134AF); border:none; border-radius:16px; padding:15px;
+    cursor:pointer; box-shadow:0 6px 0 rgba(0,0,0,.15); transition:transform .12s; }
+  .post-btn:hover:not(:disabled){ transform:translateY(-2px); }
+  .post-btn:disabled{ background:#d8cfbb; box-shadow:0 6px 0 #bdb39b; cursor:not-allowed; }
+  .up-done{ display:none; text-align:center; margin-top:8px; }
+  .up-done.show{ display:block; }
+  .up-done .msg{ font-family:'Jua',sans-serif; font-size:20px; color:var(--insta); margin:4px 0 14px; }
+  .up-done .ment{ font-family:'Gowun Dodum',sans-serif; font-size:16px; color:#6b6253; margin:0 0 16px; word-break:keep-all; }
+
+  .file-hidden{ display:none; }
+
+  @media (max-width:860px){
+    .dict-grid{ grid-template-columns:repeat(3,1fr); }
+    .detail-grid{ grid-template-columns:1fr; }
+    .monthly-row{ grid-template-columns:repeat(2,1fr); }
+    .feed{ grid-template-columns:repeat(2,1fr); }
+    .feed.gfeed{ column-count:2; }
+    .monthly-row.gfeed{ column-count:2; }
+  }
+  @media (max-width:560px){
+    .home-choice{ grid-template-columns:1fr; }
+    .dict-grid{ grid-template-columns:repeat(2,1fr); }
+    .feed{ grid-template-columns:1fr; }
+    .feed.gfeed{ column-count:1; }
+    .monthly-row.gfeed{ column-count:1; }
+  }
+</style>
+</head>
+<body>
+  <div class="wrap">
+
+    <!-- ===== 홈 ===== -->
+    <section id="viewHome" class="view active">
+      <div class="topbar">
+        <a class="back" href="index.html">← 메인으로</a>
+        <span class="who" id="whoC"></span>
+      </div>
+      <div class="title-img has-img">
+        <img src="assets/title-concept.png" alt="개념사전" />
+      </div>
+      <div class="home-choice">
+        <button class="big-btn bb-dict img-btn" id="toDict">
+          <img class="btn-img" src="assets/btn-dict.png" alt="수학 개념사전" />
+          <h2>수학 개념사전</h2>
+        </button>
+        <button class="big-btn bb-gallery img-btn" id="toGallery">
+          <img class="btn-img" src="assets/btn-photocard.png" alt="수학 포토카드 갤러리" />
+          <h2>수학 포토카드 갤러리</h2>
+        </button>
+      </div>
+    </section>
+
+    <!-- ===== 개념사전 목록 ===== -->
+    <section id="viewDict" class="view">
+      <div class="topbar">
+        <button class="back" id="dictBack">← 돌아가기</button>
+        <span class="who"></span>
+      </div>
+      <div class="sec-head">
+        <h1>수학 개념사전</h1>
+        <p>학습한 개념이나 더 알아보고 싶은 개념을 골라 보세요.</p>
+      </div>
+      <div class="dict-grid" id="dictGrid"></div>
+    </section>
+
+    <!-- ===== 개념 상세 ===== -->
+    <section id="viewDetail" class="view">
+      <div class="topbar">
+        <button class="back" id="detailBack">← 개념사전 목록</button>
+        <span class="who"></span>
+      </div>
+      <div class="detail-grid">
+        <div class="detail-img-box">
+          <img id="detailImg" alt="" />
+        </div>
+        <div class="detail-side">
+          <div class="detail-tagrow">
+            <span class="tagpill area" id="detailArea">영역</span>
+            <span class="tagpill unit" id="detailUnit">단원</span>
+          </div>
+          <h2 class="detail-name" id="detailName">개념</h2>
+
+          <div class="side-card">
+            <button class="make-btn" id="makePhoto">📸 GPS스타그램 포토카드 만들기</button>
+            <p class="make-hint">생활 속에서 이 개념과 관련된 사진을 찾아 찍고, 바로 포토카드로 올려 보세요!</p>
+
+            <div class="gpscan-banner show detail" id="detailBanner" style="margin:16px 0 0; max-width:none;">
+              <span class="gb-text">🧭 포토카드를 만들었다면, 이 개념과 관련된 <b id="detailBannerName">GPS’ CAN</b> 문제도 풀어볼까요?</span>
+              <button class="gb-btn" id="detailBannerGo">문제 풀러 가기 →</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== 포토카드 갤러리 ===== -->
+    <section id="viewGallery" class="view">
+      <div class="topbar">
+        <button class="back" id="galleryBack">← 돌아가기</button>
+        <span class="who"></span>
+      </div>
+      <div class="sec-head insta">
+        <h1>📸 GPS스타그램 포토카드 갤러리</h1>
+        <p>친구들이 찾은 생활 속 수학을 구경하고, 나도 올려 보세요.</p>
+      </div>
+
+      <div class="area-filter" id="areaFilter">
+        <button class="chip on" data-area="전체">전체</button>
+        <button class="chip" data-area="수와 연산">수와 연산</button>
+        <button class="chip" data-area="도형과 측정">도형과 측정</button>
+        <button class="chip" data-area="변화와 관계">변화와 관계</button>
+        <button class="chip" data-area="자료와 가능성">자료와 가능성</button>
+      </div>
+
+      <div class="monthly-head">🏆 이달의 GPS스타그램 포토카드</div>
+      <div class="monthly-row" id="monthlyRow"></div>
+
+      <div class="post-actions">
+        <button class="upload-cta" id="toUpload">＋ 포토카드 올리기</button>
+      </div>
+
+      <div class="feed" id="feed"></div>
+    </section>
+
+    <!-- ===== 포토카드 올리기 ===== -->
+    <section id="viewUpload" class="view">
+      <div class="topbar">
+        <button class="back" id="uploadBack">← 갤러리로</button>
+        <span class="who"></span>
+      </div>
+      <div class="sec-head insta">
+        <h1>GPS스타그램 포토카드 올리기</h1>
+        <p>생활 속 수학 사진을 올리고, 어떤 개념과 관련 있는지 적어 보세요.</p>
+      </div>
+
+      <div class="up-card">
+        <input type="file" id="upFile" class="file-hidden" accept="image/*" />
+        <div class="up-preview" id="upPreview"><span class="ph">📷<br/>사진을 선택하세요</span></div>
+
+        <div class="ufield">
+          <label>관련 수학 개념</label>
+          <input type="text" id="upConcept" placeholder="예: 반지름" />
+        </div>
+        <div class="ufield">
+          <label>포토카드 제목</label>
+          <input type="text" id="upTitle" placeholder="예: 우리 집 동그란 시계" />
+        </div>
+        <div class="ufield">
+          <label>설명</label>
+          <textarea id="upDesc" placeholder="예: 이 사진에서 중심에서 원의 둘레까지의 거리를 반지름이라고 할 수 있습니다."></textarea>
+        </div>
+
+        <div class="preview-wrap">
+          <div class="preview-label">📸 이렇게 만들어져요 (미리보기)</div>
+          <div id="gcardPreview"></div>
+        </div>
+
+        <button class="post-btn" id="postBtn" disabled>📨 게시하기</button>
+
+        <div class="up-done" id="upDone">
+          <p class="msg">🎉 포토카드가 게시되었습니다!</p>
+          <p class="ment">오늘 배운 개념과 관련된 GPS’ CAN 문제를 풀어볼까요?</p>
+          <button class="link-btn" id="upToGpscan" style="max-width:320px;margin:0 auto;">🧭 GPS’ CAN 문제 풀러 가기 →</button>
+        </div>
+      </div>
+    </section>
+
+  </div>
+
+<script src="concept.js"></script>
+</body>
+</html>
