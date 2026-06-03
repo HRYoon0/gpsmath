@@ -39,10 +39,11 @@ const THEMES = {
       desc:'만우절이에요! 친구에게 들은 엉뚱한 숫자, 정말 그만큼 클까요? 큰 수를 어림해 봐요.',
       guide:'들었던 과장된 숫자를 적고, 진짜로는 얼마쯤일지 어림해 보세요.',
       q1:'어떤 과장된 숫자를 들었나요?', q2:'실제로는 얼마쯤일지 어떻게 어림했나요?' },
-    { em:'🌳', area:'변화와 관계', title:'나무 심는 간격의 규칙', learn:'규칙 찾기', unit:'규칙과 대응',
-      desc:'식목일! 나무를 일정한 간격으로 심으면 어떤 규칙이 생길까요? 나무 수와 간격의 관계를 찾아봐요.',
-      guide:'나무 수와 간격 사이의 규칙을 표로 정리해 보세요.',
-      q1:'나무를 몇 그루, 몇 m 간격으로 심었나요?', q2:'나무 수와 간격 사이에 어떤 규칙이 있었나요?' },
+    { em:'🍫', area:'수와 연산', title:'공정무역 초콜릿, 공정하게 나누기', learn:'나눗셈', unit:'나눗셈',
+      img:'assets/theme-fairtrade.png',
+      desc:'공정무역은 땀 흘려 일한 생산자에게 정당한 몫을 돌려주는 약속이에요. 공정무역 초콜릿을 판 돈을 농부들에게 똑같이 나누면 한 사람은 얼마를 받을까요? 나눗셈으로 공정하게 나누어 봐요.',
+      guide:'나눌 전체 금액(또는 개수)과 나눌 사람 수를 정하고, 나눗셈으로 한 사람의 몫을 구해 보세요.',
+      q1:'나눌 전체 금액(또는 개수)과 사람 수는 얼마였나요?', q2:'한 사람의 몫을 나눗셈식으로 어떻게 구했나요?' },
     { em:'🚀', area:'도형과 측정', title:'로켓 발사까지 남은 시간', learn:'시각과 시간', unit:'시각과 시간',
       desc:'과학의 날! 로켓 발사 시각이 정해졌어요. 지금부터 발사까지 남은 시간을 계산해 봐요.',
       guide:'현재 시각과 발사 시각을 정하고, 남은 시간을 구한 과정을 적어 보세요.',
@@ -68,7 +69,11 @@ const THEMES = {
     { em:'📊', area:'자료와 가능성', title:'키가 자란 만큼 그래프로', learn:'막대그래프', unit:'자료의 정리',
       desc:'봄 동안 키가 얼마나 자랐을까요? 우리 가족 또는 친구들의 키를 막대그래프로 나타내 봐요.',
       guide:'키를 조사한 자료를 표로 정리하고, 막대그래프로 나타내 보세요.',
-      q1:'누구의 키를 조사했고 값은 얼마였나요?', q2:'막대그래프로 나타내니 무엇을 알 수 있었나요?' }
+      q1:'누구의 키를 조사했고 값은 얼마였나요?', q2:'막대그래프로 나타내니 무엇을 알 수 있었나요?' },
+    { em:'🏃', area:'수와 연산', title:'운동회 간식 똑같이 나누기', learn:'나눗셈', unit:'나눗셈',
+      desc:'봄 운동회 날! 친구들에게 간식을 똑같이 나누어 주려고 해요. 한 명에게 몇 개씩 줄 수 있을까요? 나눗셈으로 구해 봐요.',
+      guide:'간식의 전체 개수와 나누어 줄 사람 수를 정하고, 나눗셈으로 한 명당 개수를 구해 보세요.',
+      q1:'간식은 모두 몇 개였고, 몇 명에게 나누어 주었나요?', q2:'한 명에게 몇 개씩 돌아갔나요? 나눗셈식으로 나타내 보세요.' }
   ],
   6: [
     { em:'♻️', area:'자료와 가능성', title:'분리수거 통계 내기', learn:'표와 그래프', unit:'자료의 정리',
@@ -104,7 +109,11 @@ const THEMES = {
     { em:'🏖️', area:'도형과 측정', title:'모래성의 부피 어림하기', learn:'어림', unit:'어림하기',
       desc:'바닷가에서 모래성을 쌓았어요! 모래성에는 모래가 얼마나 들어갔을까요? 크기를 어림해 봐요.',
       guide:'모래성의 크기를 어림하고, 어떻게 어림했는지 적어 보세요.',
-      q1:'모래성의 크기를 어떻게 어림했나요?', q2:'어림한 값은 얼마였고, 왜 그렇게 생각했나요?' }
+      q1:'모래성의 크기를 어떻게 어림했나요?', q2:'어림한 값은 얼마였고, 왜 그렇게 생각했나요?' },
+    { em:'🏞️', area:'수와 연산', title:'여름 휴가 거리 더하기', learn:'덧셈과 뺄셈', unit:'덧셈과 뺄셈',
+      desc:'한여름, 가족과 휴가를 떠나요! 집에서 여행지까지 가는 거리를 모두 더하면 얼마일까요? 큰 수의 덧셈으로 구해 봐요.',
+      guide:'거쳐 간 구간별 이동 거리를 적고, 모두 더해 전체 거리를 구해 보세요.',
+      q1:'어디를 거쳐 갔고, 구간별 거리는 얼마였나요?', q2:'전체 거리를 어떻게 더해서 구했나요?' }
   ]
 };
 
@@ -296,6 +305,15 @@ function openTheme(theme, weekLabel){
   document.getElementById('themeHero').style.background = AREA_BG[theme.area]||'var(--diary-soft)';
   document.getElementById('themeEm').textContent=theme.em;
   document.getElementById('themeArea').textContent=theme.area;
+  // 주제에 이미지(img)가 있으면 사진을 보여 주고 이모지는 숨긴다.
+  const themeImg=document.getElementById('themeImg');
+  if(theme.img){
+    themeImg.src=theme.img; themeImg.hidden=false;
+    document.getElementById('themeEm').style.display='none';
+  } else {
+    themeImg.removeAttribute('src'); themeImg.hidden=true;
+    document.getElementById('themeEm').style.display='';
+  }
   document.getElementById('themeWeek').textContent=weekLabel||'';
   document.getElementById('themeTitle').textContent=theme.title;
   document.getElementById('themeDesc').textContent=theme.desc;
