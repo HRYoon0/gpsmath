@@ -36,6 +36,12 @@
   .back:hover{ transform:translateX(-3px); }
   .who{ font-family:'Jua',sans-serif; font-size:15px; color:#8a8170; white-space:nowrap; }
   .who b{ color:var(--map-deep); }
+  .top-right{ display:flex; align-items:center; gap:12px; }
+  .clear-btn{ display:inline-flex; align-items:center; gap:6px; font-family:'Jua',sans-serif; font-size:15px;
+    color:#fff; background:var(--g-coral); border:none; border-radius:999px; padding:9px 16px; cursor:pointer;
+    box-shadow:0 3px 0 #c2453f; transition:transform .14s, box-shadow .14s; white-space:nowrap; }
+  .clear-btn:hover{ transform:translateY(-2px); }
+  .clear-btn:active{ transform:translateY(2px); box-shadow:0 1px 0 #c2453f; }
 
   /* ===== 제목 이미지 ===== */
   .title-wrap{ text-align:center; margin:4px auto 18px; }
@@ -116,11 +122,15 @@
   .tv-exit{ display:none; position:fixed; top:18px; right:18px; z-index:60; font-family:'Jua',sans-serif; font-size:16px;
     color:#fff; background:var(--g-coral); border:none; border-radius:999px; padding:11px 20px; cursor:pointer;
     box-shadow:0 5px 0 #c2453f; }
+  .tv-clear{ display:none; position:fixed; top:74px; right:18px; z-index:60; font-family:'Jua',sans-serif; font-size:16px;
+    color:#fff; background:var(--edu); border:none; border-radius:999px; padding:11px 20px; cursor:pointer;
+    box-shadow:0 5px 0 var(--edu-deep); }
   body.tv-mode .topbar,
   body.tv-mode .title-wrap,
   body.tv-mode .side,
   body.tv-mode .edutech{ display:none; }
   body.tv-mode .tv-exit{ display:inline-block; }
+  body.tv-mode .tv-clear{ display:inline-block; }
   body.tv-mode .wrap{ max-width:none; padding:0; min-height:100vh; display:flex; align-items:center; justify-content:center; }
   body.tv-mode .layout{ display:block; width:100%; }
   body.tv-mode .board-wrap{ width:min(94vw, calc(92vh * 10 / 7)); margin:0 auto; }
@@ -145,13 +155,17 @@
 <body>
 
   <button class="tv-exit" id="tvExit">✕ 화면 닫기</button>
+  <button class="tv-clear" id="tvClear" type="button">🗑 이 영역 비우기</button>
 
   <div class="wrap">
 
     <!-- 상단바 -->
     <div class="topbar">
       <a class="back" href="index.html">← 메인으로</a>
-      <div class="who">GPS 수학 <b>풀리지도</b></div>
+      <div class="top-right">
+        <div class="who">GPS 수학 <b>풀리지도</b></div>
+        <button class="clear-btn" id="clearBtn" type="button">🗑 이 영역 비우기</button>
+      </div>
     </div>
 
     <!-- 제목 이미지 -->
@@ -268,6 +282,20 @@
       ta.value = v;
     });
   }
+
+  /* ---------- 현재 영역만 비우기(휴지통) ---------- */
+  function clearArea(){
+    var a = AREAS[current];
+    if(!confirm('「' + a.label + '」 영역의 내용을 모두 지울까요?')) return;
+    var tas = cellsEl.querySelectorAll('textarea');
+    tas.forEach(function(ta){
+      var slot = ta.getAttribute('data-slot');
+      ta.value = '';
+      try{ localStorage.removeItem(storeKey(a.key, slot)); }catch(err){}
+    });
+  }
+  document.getElementById('clearBtn').addEventListener('click', clearArea);
+  document.getElementById('tvClear').addEventListener('click', clearArea);
 
   /* ---------- 우측 영역 버튼 ---------- */
   AREAS.forEach(function(a, idx){
