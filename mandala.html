@@ -79,6 +79,11 @@
   }
   .cell textarea::placeholder{ color:transparent; }
   .cell textarea:focus{ background:transparent; border-radius:0; padding-top:30%; }
+  /* 가운데(노란) 칸: 더 크고 진한 글씨 */
+  .cell.is-center textarea{
+    font-family:'Jua',sans-serif; font-weight:700;
+    font-size:clamp(15px,2.2vw,26px); color:#3c3730;
+  }
 
   /* ----- 우측 영역 버튼 ----- */
   .side{ display:flex; flex-direction:column; gap:12px; }
