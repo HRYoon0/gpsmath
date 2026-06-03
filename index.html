@@ -57,7 +57,7 @@
   /* ---- top mini bar ---- */
   .topbar{ display:flex; align-items:center; justify-content:space-between; margin-bottom:18px; }
   .logo{ font-family:'Jua',sans-serif; font-size:26px; letter-spacing:.5px; display:flex; align-items:center; gap:8px; white-space:nowrap; }
-  .logo .pin{ width:26px; height:26px; flex:none; }
+  .logo .pin{ width:33px; height:26px; flex:none; }
   .logo b{ font-weight:400; }
   .logo .lg{ color:#e8473a; } .logo .lp{ color:#f0b400; } .logo .ls{ color:var(--g-green); }
   .logo .ko{ color:var(--ink); margin-left:4px; }
@@ -322,11 +322,15 @@
     <!-- top mini bar -->
     <div class="topbar">
       <div class="logo" aria-label="GP SPACE">
-        <svg class="pin" viewBox="0 0 24 24" fill="none">
-          <path d="M5 9c0-2 .6-3.3 1.6-4.3" stroke="#3a82d6" stroke-width="2" stroke-linecap="round"/>
-          <path d="M19 9c0-2-.6-3.3-1.6-4.3" stroke="#3a82d6" stroke-width="2" stroke-linecap="round"/>
-          <path d="M12 22s6-5.6 6-10a6 6 0 1 0-12 0c0 4.4 6 10 6 10Z" fill="#ef5b54" stroke="#3c3730" stroke-width="1.6"/>
-          <circle cx="12" cy="12" r="2.4" fill="#fff"/>
+        <svg class="pin" viewBox="0 0 32 25" fill="none">
+          <!-- 좌측 신호 파동 (안쪽 짧게 / 바깥쪽 크게) -->
+          <path d="M8 7.5 Q4.8 10.75 8 14" stroke="#1971bb" stroke-width="2.4" stroke-linecap="round"/>
+          <path d="M4.8 5 Q-0.4 10.75 4.8 16.5" stroke="#1971bb" stroke-width="2.4" stroke-linecap="round"/>
+          <!-- 우측 신호 파동 (안쪽 짧게 / 바깥쪽 크게) -->
+          <path d="M24 7.5 Q27.2 10.75 24 14" stroke="#1971bb" stroke-width="2.4" stroke-linecap="round"/>
+          <path d="M27.2 5 Q32.4 10.75 27.2 16.5" stroke="#1971bb" stroke-width="2.4" stroke-linecap="round"/>
+          <!-- 파란 위치 핀 (가운데 구멍은 evenodd로 뚫어 배경이 비침) -->
+          <path fill="#1971bb" fill-rule="evenodd" d="M16 21 C12.2 17 10.7 13.5 10.7 10.5 A5.3 5.3 0 1 1 21.3 10.5 C21.3 13.5 19.8 17 16 21 Z M16 8 A2.5 2.5 0 1 0 16 13 A2.5 2.5 0 1 0 16 8 Z"/>
         </svg>
         <b><span class="lg">G</span><span class="lp">P</span></b>
         <b><span class="ls">SPACE</span></b>
