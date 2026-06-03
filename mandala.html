@@ -79,7 +79,6 @@
   }
   .cell textarea::placeholder{ color:transparent; }
   .cell textarea:focus{ background:transparent; border-radius:0; padding-top:30%; }
-  .cell.is-center{ pointer-events:none; }
 
   /* ----- 우측 영역 버튼 ----- */
   .side{ display:flex; flex-direction:column; gap:12px; }
@@ -238,14 +237,12 @@
     for(var i=0;i<9;i++){
       var cell = document.createElement('div');
       cell.className = 'cell' + (i===4 ? ' is-center' : '');
-      if(i!==4){
-        var ta = document.createElement('textarea');
-        ta.setAttribute('data-slot', i);
-        ta.setAttribute('rows','3');
-        ta.setAttribute('placeholder','');
-        ta.addEventListener('input', onType);
-        cell.appendChild(ta);
-      }
+      var ta = document.createElement('textarea');
+      ta.setAttribute('data-slot', i);
+      ta.setAttribute('rows','3');
+      ta.setAttribute('placeholder','');
+      ta.addEventListener('input', onType);
+      cell.appendChild(ta);
       cellsEl.appendChild(cell);
     }
   })();
